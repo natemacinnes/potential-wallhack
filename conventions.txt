@@ -1,0 +1,24 @@
+reserveBook & reserveInterLibrary:
+	- “reserved”
+	- “not available”
+	- “does not exist”
+
+createAccount
+	- “account created”
+	- “account already exists”
+	- “account not created: password short”
+	- “account not created: username long”
+	- “account not created: username short”
+
+getNonReturners
+	“concordia: 
+	FN LN phone
+	FN LN phone”
+	“mcgill:”
+	“uqam:”
+	- “list”
+	 IF empty no non returners
+
+UDP method calls “methodinitials.method.arguments.institutionname”
+	ex: reserveInterLibrary (Username, Password, BookName, AuthorName)
+		-> rtl.username.password.bookname.authornam.concordia
