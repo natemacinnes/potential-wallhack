@@ -158,5 +158,54 @@ public class ReplicaServerTest {
 			r1.stopReplica();
 			}	
 	}
+	
+	@Test
+	public void reliableMulticastWithGreaterSeqNumber() {
+		int expectedResult = 1;
+		ReplicaServer r1 = new ReplicaServer("replica1");
+		ReplicaServer r2 = new ReplicaServer("replica2");
+		ReplicaServer r3 = new ReplicaServer("replica3");
+		r1.start();
+		r2.start();
+		r3.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			aSocket = new DatagramSocket(); 
+			String msg = "1.setDuration.joedoe.somebook.4";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			int replicaTwoActualResult = r2.getHoldbackQueueSize();
+			int replicaThreeActualResult = r3.getHoldbackQueueSize();
+
+			r1.stopReplica();
+			r2.stopReplica();
+			r3.stopReplica();
+			
+			Assert.assertEquals(expectedResult, replicaTwoActualResult);
+			Assert.assertEquals(expectedResult, replicaThreeActualResult);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e){
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			r2.stopReplica();
+			r3.stopReplica();
+			}	
+	}
 
 }
