@@ -7,8 +7,8 @@ import serverException.validateCredentialsException;
 
 public interface LibraryServerInterface {
 	
-	public void createAccount(String firstName, String lastName, String email, String phoneNumber,
-			String username, String password, String institution) throws TableUniqueIdException;
+	public String createAccount(String firstName, String lastName, String email, String phoneNumber,
+			String username, String password, String institution);
 	
 	public void reserveBook(String username, String password, String institution, String bookTitle,
 			String authorName) throws validateCredentialsException, ItemNotFoundException,

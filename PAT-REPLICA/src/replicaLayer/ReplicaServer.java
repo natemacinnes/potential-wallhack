@@ -108,20 +108,51 @@ public class ReplicaServer extends Thread{
   	  				    				sequencerIp, replicaInfo.getSequencerPort());
   	  				    		aSocket.send(reply);
   	  						}
+  	  						/*
+  	  						 * If actual sequence number is equal to expected sequence number,
+  	  						 * It is the value expected. Put it in delivery queue, perform operation
+  	  						 * and write it in log
+  	  						 */
+  	  						else
+  	  						{
+  	  							deliveryQueue.put(msgNumber, operationReceived);
+  	  							String result = performLibraryOperation(operationReceived);
+  	  							//TODO: implement recordOperation
+  	  						    recordOperation();
+  	  						    messageSequenceNumber++;
+  	  						    
+  	  						    //Send result to front end
+  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
+  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
+  	  				    			frontEndIp, replicaInfo.getFrontEndPort());
+  	  				    		aSocket.send(reply);	
+  	  						}
   	  					}
   						
   					}
   				}
-  				String result = performOperation(operationReceived);
-  				//convert the text obtained into an integer
-  				//int numDays = Integer.parseInt(textReceive);
-  				//get the non returners
-  				//String result = server.ISOGetNonReturners(numDays);
-  				//System.out.println(result);
-  				//send result back to calling server
-    			DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
-        				request.getAddress(), request.getPort());
-    			aSocket.send(reply);
+  				//If the operation should be performed by the replica
+  				else if(isReplicaOperation(operationReceived))
+  				{
+  					String result = performReplicaOperation(operationReceived);
+  					
+					//Send result to replica Manager
+					InetAddress replicaManagerIp = InetAddress.getByName(replicaInfo.getReplicaManagerIp());
+			        DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
+			        		replicaManagerIp, replicaInfo.getReplicaManagerPort());
+			    	aSocket.send(reply);
+  				}
+  				//Operation is not recognized. Inform front end.
+  				else
+  				{
+  					String result = "This operation was not recognized by the system";
+  					
+					//Send result to front end
+					InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
+			    	DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
+			    		frontEndIp, replicaInfo.getFrontEndPort());
+			    	aSocket.send(reply);
+  				}
     		}
 		}
 		catch(NumberFormatException e){
@@ -132,13 +163,10 @@ public class ReplicaServer extends Thread{
 		}finally {if(aSocket != null) aSocket.close();}
 	}
 	
-	private String performOperation(String operation)
+	private String performReplicaOperation(String operation)
 	{
 		boolean isStartOperation = operation.equals("startServers");
 		boolean isRestartOperation = operation.equals("restartServers");
-		boolean isLibraryOperation = operation.contains("createAccount") || operation.contains("reserveInterLibrary")
-		|| operation.contains("setDuration") || operation.contains("getNonReturners") || 
-		operation.contains("reserveBook");
 		
 		if(isStartOperation)
 		{
@@ -151,6 +179,24 @@ public class ReplicaServer extends Thread{
 		else
 		{
 			return "This operation was not recognized by the system";
+		}
+	}
+	
+	private String performLibraryOperation(String operation)
+	{
+		boolean isCreateAccountOperation = operation.contains("createAccount");
+		boolean isReserveInterLibraryOperation = operation.contains("reserveInterLibrary");
+		boolean isSetDurationOperation = operation.contains("setDuration");
+		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
+		boolean isReserveBookOperation = operation.contains("reserveBook");
+		
+		if(isCreateAccountOperation)
+		{
+			return invokeCreateAccount(operation);
+		}
+		else
+		{
+			return "Library operation not recognized";
 		}
 	}
 	
@@ -180,6 +226,15 @@ public class ReplicaServer extends Thread{
 		return isLibraryOperation;
 	}
 	
+	private boolean isReplicaOperation(String operation)
+	{
+		boolean isStartOperation = operation.equals("startServers");
+		boolean isRestartOperation = operation.equals("restartServers");
+		
+		return (isStartOperation || isRestartOperation);
+		
+	}
+	
 	private String extractMessage(DatagramPacket request)
 	{
 			//get only the non-empty bit out of the byte array
@@ -192,14 +247,59 @@ public class ReplicaServer extends Thread{
 			return new String(byteReceive);
 	}
 	
+	/*
+	 * Debug method
+	 */
 	public int getHoldbackQueueSize()
 	{
 		return holdbackQueue.size();
 	}
 	
+	/*
+	 * Debug method
+	 */
 	public int getDeliveryQueueSize()
 	{
 		return deliveryQueue.size();
+	}
+	
+	private String invokeCreateAccount(String operation)
+	{
+		String firstName;
+		String lastName;
+		String email;
+		String phoneNumber;
+		String username;
+		String password;
+		String institution;
+		String result;
+		String[] msgParts = operation.split("\\.");
+		
+		/*
+		 *  operation should have the sequence number, the name of the method
+		 *  and 7 arguments
+		 */
+		if(msgParts.length < 9)
+		{
+			result = "Operation createAccount is missing arguments";
+			return result;
+		}
+		else if(msgParts.length > 9)
+		{
+			result =  "Operation createAccount has too many arguments";
+			return result;
+		}
+		
+		firstName = msgParts[2];
+		lastName = msgParts[3];
+		email = msgParts[4];
+		phoneNumber = msgParts[5];
+		username = msgParts[6];
+		password = msgParts[7];
+		institution = msgParts[8];
+		
+		result = serversMap.get(institution).createAccount(firstName, lastName, email, phoneNumber, username, password, institution);
+		return result;
 	}
 	
 	
@@ -208,5 +308,10 @@ public class ReplicaServer extends Thread{
 	{
 		
 	} 
+	
+	private void recordOperation()
+	{
+		
+	}
 
 }

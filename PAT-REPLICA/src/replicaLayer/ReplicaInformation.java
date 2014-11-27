@@ -7,7 +7,12 @@ public class ReplicaInformation {
 	
 	private HashMap<String,String> networkInfoList;
 	private int sequencerPort;
+	private int frontEndPort;
+	private int replicaManagerPort;
 	private String sequencerIp;
+	private String frontEndIp;
+	private String replicaManagerIp;
+	
 	
 	public ReplicaInformation(){
 		networkInfoList = new HashMap<String,String>();
@@ -15,7 +20,11 @@ public class ReplicaInformation {
 		networkInfoList.put("replica2", "7778-127.0.0.1");
 		networkInfoList.put("replica3", "7779-127.0.0.1");
 		sequencerPort = 7780;
+		frontEndPort = 7781;
+		replicaManagerPort = 7782;
 		sequencerIp = "127.0.0.1";
+		frontEndIp = "127.0.0.1";
+		replicaManagerIp = "127.0.0.1";
 	}
 	
 	//get the port of a specific port
@@ -58,6 +67,23 @@ public class ReplicaInformation {
 	public String getSequencerIp()
 	{
 		return sequencerIp;
+	}
+
+	public int getFrontEndPort() {
+		return frontEndPort;
+	}
+
+	public int getReplicaManagerPort() {
+		return replicaManagerPort;
+	}
+
+	public String getFrontEndIp() {
+		return frontEndIp;
+	}
+
+
+	public String getReplicaManagerIp() {
+		return replicaManagerIp;
 	}
 	
 

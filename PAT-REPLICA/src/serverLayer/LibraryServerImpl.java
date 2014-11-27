@@ -208,8 +208,10 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 	}
 	
 	@Override 
-	public void createAccount(String firstName, String lastName, String email, String phoneNumber,
-			String username, String password, String institution) throws TableUniqueIdException, InvalidParameterException {
+	public String createAccount(String firstName, String lastName, String email, String phoneNumber,
+			String username, String password, String institution) {
+		
+		String result;
 		
 		LOGGER.entering(this.getClass().getName(), "createAccount", 
 				new Object[]{new String(firstName), new String(lastName), new String(email),
@@ -217,19 +219,22 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		
 		boolean accountInfoValid = areAccountInfoValid(firstName,lastName,email,phoneNumber,username,password, institution);
 		if(!accountInfoValid){
-			InvalidParameterException e = new InvalidParameterException("One of the submitted information is not valid"); 
-			LOGGER.throwing(this.getClass().getName(), "createAccount", e);
-			throw e;
+			result = "Operation createAccount failed: One of the arguments is not valid";
+			LOGGER.exiting(this.getClass().getName(), "createAccount", new String(result));
+			return result;
 		}
 		Account acc = new Account(firstName,lastName,email,phoneNumber,username,password, institution);
 		try{
 			accountsTable.addAccount(acc);
 		}catch(TableUniqueIdException e){
-			LOGGER.throwing(this.getClass().getName(), "createAccount", e);
-			throw e;
+			result = "Operation createAccount failed: username already exist";
+			LOGGER.exiting(this.getClass().getName(), "createAccount", new String(result));
+			return result;
 		}
 		
-		LOGGER.exiting(this.getClass().getName(), "createAccount");
+		result = "Operation createAccount succeed in " + institution + " library";
+		LOGGER.exiting(this.getClass().getName(), "createAccount", new String(result));
+		return result;
 	}
 	
 	@Override
