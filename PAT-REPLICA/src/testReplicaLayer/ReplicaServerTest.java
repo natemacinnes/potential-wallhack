@@ -1,6 +1,12 @@
 package testReplicaLayer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -773,6 +779,150 @@ public class ReplicaServerTest {
 			if(aSocket != null) 
 				aSocket.close(); 
 			r1.stopReplica();
+			}	
+	}
+	
+	
+	/*
+	 * Send a createAccount and reserveBook messages to a replica successfully.
+	 * Verify that the operation were written correctly in the log file
+	 */
+	@Test
+	public void ReplicaServerTest_012() {
+		String replicaName = "replica1";
+		String institution = "concordia";
+		String expectedResult1 = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
+		String expectedResult2 = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		String fileName = r1.getLogFileName();
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Delete existing log file
+			File file  = new File(fileName);
+			file.delete();
+			
+			//Start servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "startServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send createAccount operation
+			msg = expectedResult1;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send reserveBook operation
+			msg = expectedResult2;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			aSocket.close();
+			r1.stopReplica();
+			
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			String actualResult1 = reader.readLine();
+			String actualResult2 = reader.readLine();
+			reader.close();
+			
+			Assert.assertEquals(expectedResult1, actualResult1);
+			Assert.assertEquals(expectedResult2, actualResult2);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			}	
+	}
+	
+	
+	/*
+	 * Test if library servers get updated successfully after a restart
+	 */
+	@Test
+	public void ReplicaServerTest_013() {
+		String replicaName = "replica1";
+		String institution = "concordia";
+		int expectedDeliveryQueueSize = 3;
+		int expectedMessageSequenceNumber = 3;
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		String fileName = r1.getLogFileName();
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		PrintWriter printWriter = null;
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Delete existing log file
+			File file  = new File(fileName);
+			file.delete();
+			
+			//Create log file
+			FileWriter fileWriter = new FileWriter(file,true);
+			printWriter = new PrintWriter(new BufferedWriter(fileWriter));
+			printWriter.println("0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution);
+			printWriter.println("1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution);
+			printWriter.println("2.createAccount.doejoe.doejoe.joedoe@mail.222-2222.joedoe.joedoe." + institution);
+			printWriter.close();
+			
+			
+			//restart servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "restartServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			aSocket.close();
+			r1.stopReplica();
+			
+			Assert.assertEquals(expectedDeliveryQueueSize, r1.getDeliveryQueueSize());
+			Assert.assertEquals(expectedMessageSequenceNumber, r1.getMessageSequenceNumber());
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			if(printWriter != null)
+			{
+				printWriter.close();
+			}
 			}	
 	}
 

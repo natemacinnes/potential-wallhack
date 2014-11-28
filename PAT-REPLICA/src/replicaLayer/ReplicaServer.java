@@ -1,6 +1,11 @@
 package replicaLayer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -21,6 +26,7 @@ public class ReplicaServer extends Thread{
 	private HashMap<Integer,String> holdbackQueue;
 	private boolean runReplica = false;
 	private int messageSequenceNumber;
+	private String logFileName;
 	
 	public ReplicaServer(String replicaName)
 	{
@@ -31,6 +37,7 @@ public class ReplicaServer extends Thread{
 		deliveryQueue = new HashMap<Integer, String>();
 		holdbackQueue = new HashMap<Integer, String>();
 		messageSequenceNumber = 0;
+		logFileName = "replicaLog.txt";
 	}
 	
 	public String getReplicaName()
@@ -117,8 +124,7 @@ public class ReplicaServer extends Thread{
   	  						{
   	  							deliveryQueue.put(msgNumber, operationReceived);
   	  							String result = performLibraryOperation(operationReceived);
-  	  							//TODO: implement recordOperation
-  	  						    recordOperation();
+  	  						    recordOperation(operationReceived);
   	  						    messageSequenceNumber++;
   	  						    
   	  						    //Send result to front end
@@ -228,7 +234,9 @@ public class ReplicaServer extends Thread{
 	private String restartServers()
 	{
 		startServers();
-		//TODO: write implementation of updateServers method for bringing servers up-to-date
+		messageSequenceNumber = 0;
+		holdbackQueue.clear();
+		deliveryQueue.clear();
 		updateServers();
 		return "Replica " + replicaName + " restarted its servers";
 	}
@@ -277,6 +285,22 @@ public class ReplicaServer extends Thread{
 	public int getDeliveryQueueSize()
 	{
 		return deliveryQueue.size();
+	}
+	
+	/*
+	 * Debug method
+	 */
+	public String getLogFileName()
+	{
+		return logFileName;
+	}
+	
+	/*
+	 * Debug method
+	 */
+	public int getMessageSequenceNumber()
+	{
+		return messageSequenceNumber;
 	}
 	
 	private String invokeCreateAccount(String operation)
@@ -482,12 +506,54 @@ public class ReplicaServer extends Thread{
 	
 	private void updateServers()
 	{
-		
+		BufferedReader reader = null;
+		try
+		{
+			reader = new BufferedReader(new FileReader(logFileName));
+			String operation;
+			
+			while((operation = reader.readLine()) != null)
+			{
+				performLibraryOperation(operation);
+				deliveryQueue.put(messageSequenceNumber, operation);
+				messageSequenceNumber++;
+			}
+			
+			reader.close();
+		}
+		catch(IOException e){}
+		finally
+		{
+			if(reader != null)
+			{
+				try
+				{
+					reader.close();
+				}
+				catch(IOException e) {}
+			}
+		}	
 	} 
 	
-	private void recordOperation()
+	//Method to record each operation performed
+	private void recordOperation(String operation)
 	{
-		
+		PrintWriter printWriter = null;
+		try
+		{
+			FileWriter fileWriter = new FileWriter(logFileName, true);
+			printWriter = new PrintWriter(new BufferedWriter(fileWriter));
+			printWriter.println(operation);
+			printWriter.close();
+		}
+		catch(IOException e) {}
+		finally
+		{
+			if(printWriter != null)
+			{
+				printWriter.close();
+			}
+		}
 	}
 
 }
