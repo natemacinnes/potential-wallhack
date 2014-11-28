@@ -51,47 +51,40 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 	}
 	
 	@Override
-	public void reserveInterLibrary(String username, String password, String bookTitle, String authorName)
-			throws validateCredentialsException, ItemNotFoundException,ItemNotAvailableException{
-		try
+	public String reserveInterLibrary(String username, String password, String bookTitle, String authorName){
+		
+		String result = reserveBook(username, password, this.institution, bookTitle, authorName);
+		
+		if(result.contains("succeed"))
 		{
-			reserveBook(username, password, this.institution, bookTitle, authorName);
+			result = "Operation reserveInterLibrary succeed in "+ institution + " library";
+			return result;
 		}
-		catch(validateCredentialsException e)
+		else if(result.contains("username or password is wrong"))
 		{
-			throw e;
+			return result;
 		}
-		catch(ItemNotFoundException e )
-		{	
-			boolean operationDone = reserveBookRemotely(username,password, bookTitle, authorName);
-			if(!operationDone)
-			{
-				throw new ItemNotAvailableException("Book was not found in any library");
-			}
-		}
-		catch(ItemNotAvailableException e)
+		else
 		{
-			boolean operationDone = reserveBookRemotely(username,password, bookTitle, authorName);
-			if(!operationDone)
-			{
-				throw new ItemNotAvailableException("Book was not found in any library");
-			}
+			result =  reserveBookRemotely(username,password, bookTitle, authorName);
+			return result;
 		}
 	}
 	
-	private boolean reserveBookRemotely(String username, String password, String bookTitle, String authorName)
+	private String reserveBookRemotely(String username, String password, String bookTitle, String authorName)
 	{
+		String result;
 		//get the ports of the udp servers of all the other servers
-		Collection<Integer> portList = serverConfig.getServersPorts();
+		Collection<String> serverNameList = serverConfig.getServersNames();
 		//get our own udp server port
 		int serverPort = serverConfig.getServerPort(this.institution);
 		boolean isReservationDone;
 		
 		//iterate through all the available ports
-		for(int port: portList){
+		for(String name: serverNameList){
 			//only send a request to remote server, not to ourself
-			if(port != serverPort){
-				isReservationDone = client.reserveBookRemotely(port,bookTitle, authorName);
+			if(name != institution){
+				isReservationDone = client.reserveBookRemotely(serverConfig.getServerPort(name),bookTitle, authorName);
 				// if the reservation was sucessfully done remotely, add the book to the local account
 				if(isReservationDone)
 				{
@@ -99,12 +92,14 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 					Book book = booksTable.getBook(bookTitle, authorName);
 					BookReservation reservation = new BookReservation(book);
 					account.addReservation(reservation);
-					return true;
+					result = "Operation reserveInterLibrary succeed: Book reserve at " + name;
+					return result;
 				}
 			}
 		}
 		
-		return false;
+		result = "Operation reserveInterLibrary failed: No more copies available or book not found";
+		return result;
 	}
 	
 	@Override
@@ -135,36 +130,38 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 	}
 	
 	@Override
-	public void setDuration(String username, String bookTitle, int numDays) throws validateCredentialsException{
+	public String setDuration(String username, String bookTitle, int numDays){
 		LOGGER.entering(this.getClass().getName(), "setDuration", 
 				new Object[]{new String(username), new String(bookTitle), new Integer(numDays)});
+		
+		String result;
 		Account account = accountsTable.getAccount(username);
 		if(account == null){
-			validateCredentialsException e =  new validateCredentialsException("Username is wrong");
-			LOGGER.throwing(this.getClass().getName(), "setDuration", e);
-			throw e;
+			result = "Operation setDuration failed: Username is wrong";
+			LOGGER.exiting(this.getClass().getName(), "setDuration", new String(result));
+			return result;
 		}
 		account.changeReservation(bookTitle, numDays);
 		
-		LOGGER.exiting(this.getClass().getName(), "setDuration");
+		result = "Operation setDuration succeed in " + institution + " library";
+		LOGGER.exiting(this.getClass().getName(), "setDuration", new String(result));
+		return result;
 	}
 
 	
 	@Override
-	public String getNonReturners(String adminUsername, String adminPassword, int numDays) 
-			throws validateCredentialsException{
+	public String getNonReturners(String adminUsername, String adminPassword, int numDays){
 		
+		String result = "";
 		LOGGER.entering(this.getClass().getName(), "getNonReturners", 
 				new Object[]{new String(adminUsername), new String(adminPassword), new Integer(numDays)});
 		
 		//validate admin credentials
 		if(!adminUsername.equals("Admin") || !adminPassword.equals("Admin")){
-			validateCredentialsException e = new validateCredentialsException("Invalid credentials.Only administrators are allowed to perform this operation");
-			LOGGER.throwing(this.getClass().getName(), "getNonReturners", e);
-			throw e;
+			result = "Operation getNonReturners failed: Invalid credentials";
+			LOGGER.exiting(this.getClass().getName(), "getNonReturners", new String(result));
+			return result;
 		}
-		
-		String result = ISOGetNonReturners(numDays) + "\n";
 		
 		//get the ports of the udp servers of all the other servers
 		Collection<Integer> portList = serverConfig.getServersPorts();
@@ -177,8 +174,11 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 			//only send a request to remote server, not to ourself
 			if(port != serverPort){
 				remoteServerResult = client.fetchNonReturners(port,numDays);
-				System.out.println("remote server returned: " + remoteServerResult);
 				result += remoteServerResult + "\n";
+			}
+			else
+			{
+				result += ISOGetNonReturners(numDays) + "\n";
 			}
 		}
 		
@@ -238,30 +238,42 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 	}
 	
 	@Override
-	public void reserveBook(String username, String password, String institution, String bookTitle,
-			String authorName) throws validateCredentialsException, ItemNotFoundException,ItemNotAvailableException {
+	public String reserveBook(String username, String password, String institution, String bookTitle,
+			String authorName){
 		
+		String result;
 		LOGGER.entering(this.getClass().getName(), "reserveBook", 
 				new Object[]{new String(username), new String(password), new String(institution),
 			new String(bookTitle), new String(authorName)});
 		
-		Account account = validateAndGetAccount(username, password);
-		Book book = fetchBook(bookTitle, authorName);
-		
-		//coordinate book reservation among students
-		synchronized(book){
-			if(book.getCopiesAvailable() == 0){
-				ItemNotAvailableException e = new ItemNotAvailableException("No more copies of the book are available");
-				LOGGER.throwing(this.getClass().getName(), "reserveBook", e);
-				throw e;
-			}
+		try
+		{
+			Account account = validateAndGetAccount(username, password);
+			Book book = fetchBook(bookTitle, authorName);
 			
-			BookReservation reservation = new BookReservation(book);
-			account.addReservation(reservation);
-			book.setCopiesAvailable(book.getCopiesAvailable() - 1);
+			//coordinate book reservation among students
+			synchronized(book){
+				if(book.getCopiesAvailable() == 0){
+					result = "Operation reserveBook failed: No more copies available";
+					LOGGER.exiting(this.getClass().getName(), "reserveBook", new String(result));
+					return result;
+				}
+				
+				BookReservation reservation = new BookReservation(book);
+				account.addReservation(reservation);
+				book.setCopiesAvailable(book.getCopiesAvailable() - 1);
+				
+				result = "Operation reserveBook succeed in " + institution + " library";
+				LOGGER.exiting(this.getClass().getName(), "reserveBook");
+				return result;
+			}
 		}
-		
-		LOGGER.exiting(this.getClass().getName(), "reserveBook");
+		catch(Exception e)
+		{
+			result = "Operation reserveBook failed: " + e.getMessage();
+			LOGGER.exiting(this.getClass().getName(), "reserveBook", new String(result));
+			return result;
+		}
 	}
 	
 	private Account validateAndGetAccount(String username, String password) throws validateCredentialsException{

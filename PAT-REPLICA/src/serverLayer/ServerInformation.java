@@ -30,5 +30,10 @@ public class ServerInformation {
 	public Collection<Integer> getServersPorts(){
 		return portList.values();
 	}
+	
+	//get a collection of all servers ports
+	public Collection<String> getServersNames(){
+		return portList.keySet();
+	}
 
 }

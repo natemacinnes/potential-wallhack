@@ -256,6 +256,7 @@ public class ReplicaServerTest {
 			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
 			aSocket.send(request);
 			
+			Thread.sleep(3000);
 			//Send createAccount operation
 			msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
 			m = msg.getBytes();		                                                 
@@ -281,7 +282,492 @@ public class ReplicaServerTest {
 			
 		}catch (SocketException e){
 			System.out.println("Socket: " + e.getMessage());
-		}catch (IOException e){
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("IO: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			}	
+	}
+	
+	/*
+	 * Send a createAccount and reserveBook messages to a replica successfully.
+	 */
+	@Test
+	public void ReplicaServerTest_008() {
+		String replicaName = "replica1";
+		String institution = "mcgill";
+		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
+		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Start servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "startServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send createAccount operation
+			msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			byte[] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byte [] byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult1 = new String(byteReceive,"UTF-8");
+			
+			//Send reserveBook operation
+			msg = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult2 = new String(byteReceive,"UTF-8");
+			aSocket.close();
+			r1.stopReplica();
+			
+			Assert.assertEquals(expectedResult1, actualResult1);
+			Assert.assertEquals(expectedResult2, actualResult2);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			}	
+	}
+	
+	
+	/*
+	 * Send a createAccount, 2 reserveBook and 1 reserveInterLibrary messages to 
+	 * a replica successfully.
+	 */
+	@Test
+	public void ReplicaServerTest_009() {
+		String replicaName = "replica1";
+		String institution = "uqam";
+		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
+		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
+		String expectedResult3 = "Operation reserveBook failed: No more copies available";
+		String expectedResult4 = "Operation reserveInterLibrary succeed in concordia library";
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Start servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "startServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send createAccount operation
+			msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			byte[] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byte [] byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult1 = new String(byteReceive,"UTF-8");
+			
+			//Send reserveBook operation
+			msg = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult2 = new String(byteReceive,"UTF-8");
+			
+			
+			//Send reserveBook operation again
+			msg = "2.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult3 = new String(byteReceive,"UTF-8");
+			
+			//Send reserveInterLibrary operation
+			msg = "3.reserveInterLibrary.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult4 = new String(byteReceive,"UTF-8");
+			aSocket.close();
+			r1.stopReplica();
+			
+			Assert.assertEquals(expectedResult1, actualResult1);
+			Assert.assertEquals(expectedResult2, actualResult2);
+			Assert.assertEquals(expectedResult3, actualResult3);
+			Assert.assertEquals(expectedResult4, actualResult4);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			}	
+	}
+	
+	
+	/*
+	 * Send a createAccount,reserveBook and setDuration messages to a replica successfully.
+	 */
+	@Test
+	public void ReplicaServerTest_010() {
+		String replicaName = "replica1";
+		String institution = "mcgill";
+		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
+		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
+		String expectedResult3 = "Operation setDuration succeed in " + institution + " library";
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Start servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "startServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send createAccount operation
+			msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			byte[] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byte [] byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult1 = new String(byteReceive,"UTF-8");
+			
+			//Send reserveBook operation
+			msg = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult2 = new String(byteReceive,"UTF-8");
+			
+			
+			//Send setDuration operation
+			msg = "2.setDuration.joedoe.Distributed System.4." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult3 = new String(byteReceive,"UTF-8");
+			aSocket.close();
+			r1.stopReplica();
+			
+			Assert.assertEquals(expectedResult1, actualResult1);
+			Assert.assertEquals(expectedResult2, actualResult2);
+			Assert.assertEquals(expectedResult3, actualResult3);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
+			System.out.println("IO: " + e.getMessage());
+		}finally {
+			if(aSocket != null) 
+				aSocket.close(); 
+			r1.stopReplica();
+			}	
+	}
+	
+	
+	/*
+	 * Send a createAccount,reserveBook, setDuration and getNonReturners messages to a replica successfully.
+	 */
+	@Test
+	public void ReplicaServerTest_011() {
+		String replicaName = "replica1";
+		String institution = "mcgill";
+		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
+		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
+		String expectedResult3 = "Operation setDuration succeed in " + institution + " library";
+		String expectedResult4 = "concordia university:\n\nmcgill university:\njoedoe joedoe 222-2222\n\n";
+		expectedResult4 += "uqam university:\n\n";
+		ReplicaServer r1 = new ReplicaServer(replicaName);
+		ReplicaInformation networkInfo = new ReplicaInformation();
+		r1.start();
+		
+		DatagramSocket aSocket = null;
+		try {
+			//Start servers
+			aSocket = new DatagramSocket(networkInfo.getFrontEndPort());  
+			String msg = "startServers";
+			byte [] m = msg.getBytes();
+			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
+			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Send createAccount operation
+			msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			byte[] buffer = new byte[1000];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byte [] byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult1 = new String(byteReceive,"UTF-8");
+			
+			//Send reserveBook operation
+			msg = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult2 = new String(byteReceive,"UTF-8");
+			
+			
+			//Send setDuration operation
+			msg = "2.setDuration.joedoe.Distributed System.4." + institution;
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult3 = new String(byteReceive,"UTF-8");
+			
+			
+			//Send getNonReturners operation
+			msg = "3.getNonReturners.Admin.Admin.uqam.4";
+			m = msg.getBytes();		                                                 
+			request = new DatagramPacket(m,  msg.length(), aHost, r1.getReplicaPort());
+			aSocket.send(request);
+			
+			Thread.sleep(3000);
+			
+			//Receive reply
+			buffer = new byte[1000];
+			reply = new DatagramPacket(buffer, buffer.length);	
+			aSocket.receive(reply);
+			
+			//get only the non-empty bit out of the byte array
+			byteReceive = new byte[reply.getLength()];
+			for(int i = 0; i < reply.getLength(); i++){
+				byteReceive[i] = reply.getData()[i];
+			}
+			
+			String actualResult4 = new String(byteReceive,"UTF-8");
+			aSocket.close();
+			r1.stopReplica();
+			
+			Assert.assertEquals(expectedResult1, actualResult1);
+			Assert.assertEquals(expectedResult2, actualResult2);
+			Assert.assertEquals(expectedResult3, actualResult3);
+			Assert.assertEquals(expectedResult4, actualResult4);
+			
+		}catch (SocketException e){
+			System.out.println("Socket: " + e.getMessage());
+		}
+		catch(InterruptedException e)
+		{
+			System.out.println("Threading: " + e.getMessage());
+		}
+		catch (IOException e){
 			System.out.println("IO: " + e.getMessage());
 		}finally {
 			if(aSocket != null) 

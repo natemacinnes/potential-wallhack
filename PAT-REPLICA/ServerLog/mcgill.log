@@ -1,0 +1,51 @@
+Nov 27, 2014 8:16:25 PM serverLayer.LibraryServerImpl createAccount
+FINER: ENTRY joedoe joedoe joedoe@mail 222-2222 joedoe joedoe mcgill
+Nov 27, 2014 8:16:25 PM serverLayer.LibraryServerImpl areAccountInfoValid
+FINER: ENTRY joedoe joedoe joedoe@mail 222-2222 joedoe joedoe mcgill
+Nov 27, 2014 8:16:25 PM serverLayer.LibraryServerImpl areAccountInfoValid
+FINER: RETURN true
+Nov 27, 2014 8:16:25 PM serverLayer.LibraryServerImpl createAccount
+FINER: RETURN Operation createAccount succeed in mcgill library
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl reserveBook
+FINER: ENTRY joedoe joedoe mcgill Distributed System Kumar
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl validateAndGetAccount
+FINER: ENTRY joedoe joedoe
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl validateAndGetAccount
+FINER: RETURN modelLayer.Account@b886fb3
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl fetchBook
+FINER: ENTRY Distributed System Kumar
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl fetchBook
+FINER: RETURN modelLayer.Book@b4ecbe8c
+Nov 27, 2014 8:16:28 PM serverLayer.LibraryServerImpl reserveBook
+FINER: RETURN
+Nov 27, 2014 8:16:31 PM serverLayer.LibraryServerImpl setDuration
+FINER: ENTRY joedoe Distributed System 4
+Nov 27, 2014 8:16:31 PM serverLayer.LibraryServerImpl setDuration
+FINER: RETURN Operation setDuration succeed in mcgill library
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl getNonReturners
+FINER: ENTRY Admin Admin 4
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: ENTRY 4
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: RETURN concordia university:
+
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: ENTRY 4
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: RETURN mcgill university:
+joedoe joedoe 222-2222
+
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: ENTRY 4
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl ISOGetNonReturners
+FINER: RETURN uqam university:
+
+Nov 27, 2014 8:16:34 PM serverLayer.LibraryServerImpl getNonReturners
+FINER: RETURN concordia university:
+
+mcgill university:
+joedoe joedoe 222-2222
+
+uqam university:
+
+

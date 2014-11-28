@@ -194,6 +194,22 @@ public class ReplicaServer extends Thread{
 		{
 			return invokeCreateAccount(operation);
 		}
+		else if(isReserveBookOperation)
+		{
+			return invokeReserveBook(operation);
+		}
+		else if(isReserveInterLibraryOperation)
+		{
+			return invokeReserveInterLibrary(operation);
+		}
+		else if(isSetDurationOperation)
+		{
+			return invokeSetDuration(operation);
+		}
+		else if(isGetNonReturnersOperation)
+		{
+			return invokeGetNonReturners(operation);
+		}
 		else
 		{
 			return "Library operation not recognized";
@@ -302,6 +318,166 @@ public class ReplicaServer extends Thread{
 		return result;
 	}
 	
+	
+	private String invokeReserveBook(String operation)
+	{
+		String username;
+		String password;
+		String bookTitle;
+		String authorName;
+		String institution;
+		String result;
+		
+		String[] msgParts = operation.split("\\.");
+		
+		/*
+		 *  operation should have the sequence number, the name of the method
+		 *  and 5 arguments
+		 */
+		if(msgParts.length < 7)
+		{
+			result = "Operation reserveBook is missing arguments";
+			return result;
+		}
+		else if(msgParts.length > 7)
+		{
+			result =  "Operation reserveBook has too many arguments";
+			return result;
+		}
+		
+
+		username = msgParts[2];
+		password = msgParts[3];
+		bookTitle = msgParts[4];
+		authorName = msgParts[5];
+		institution = msgParts[6];
+		
+		result = serversMap.get(institution).reserveBook(username, password, institution, bookTitle, authorName);
+		return result;
+	}
+	
+	private String invokeReserveInterLibrary(String operation)
+	{
+		String username;
+		String password;
+		String bookTitle;
+		String authorName;
+		String institution;
+		String result;
+		
+		String[] msgParts = operation.split("\\.");
+		
+		/*
+		 *  operation should have the sequence number, the name of the method
+		 *  and 5 arguments
+		 */
+		if(msgParts.length < 7)
+		{
+			result = "Operation reserveInterLibrary is missing arguments";
+			return result;
+		}
+		else if(msgParts.length > 7)
+		{
+			result =  "Operation reserveInterLibrary has too many arguments";
+			return result;
+		}
+		
+
+		username = msgParts[2];
+		password = msgParts[3];
+		bookTitle = msgParts[4];
+		authorName = msgParts[5];
+		institution = msgParts[6];
+		
+		result = serversMap.get(institution).reserveInterLibrary(username, password, bookTitle, authorName);
+		return result;	
+	}
+	
+	
+	private String invokeSetDuration(String operation)
+	{
+		String username;
+		String bookTitle;
+		int numDays;
+		String institution;
+		String result;
+		
+		String[] msgParts = operation.split("\\.");
+		
+		/*
+		 *  operation should have the sequence number, the name of the method
+		 *  and 4 arguments
+		 */
+		if(msgParts.length < 6)
+		{
+			result = "Operation setDuration is missing arguments";
+			return result;
+		}
+		else if(msgParts.length > 6)
+		{
+			result =  "Operation setDuration has too many arguments";
+			return result;
+		}
+		
+		try
+		{
+			username = msgParts[2];
+			bookTitle = msgParts[3];
+			numDays = Integer.parseInt(msgParts[4]);
+			institution = msgParts[5];
+			
+			result = serversMap.get(institution).setDuration(username, bookTitle, numDays);
+			return result;
+		}
+		catch(NumberFormatException e)
+		{
+			result =  "Operation setDuration failed: argument numOfDays cannot be converted to number";
+			return result;
+		}	
+	}
+	
+	private String invokeGetNonReturners(String operation)
+	{
+		String adminUsername;
+		String adminPassword;
+		int numDays;
+		String institution;
+		String result;
+		
+		String[] msgParts = operation.split("\\.");
+		
+		/*
+		 *  operation should have the sequence number, the name of the method
+		 *  and 4 arguments
+		 */
+		if(msgParts.length < 6)
+		{
+			result = "Operation setDuration is missing arguments";
+			return result;
+		}
+		else if(msgParts.length > 6)
+		{
+			result =  "Operation setDuration has too many arguments";
+			return result;
+		}
+		
+		try
+		{
+			adminUsername = msgParts[2];
+			adminPassword = msgParts[3];
+			institution = msgParts[4];
+			numDays = Integer.parseInt(msgParts[5]);
+			
+			result = serversMap.get(institution).getNonReturners(adminUsername, adminPassword, numDays);
+			return result;
+		}
+		catch(NumberFormatException e)
+		{
+			result =  "Operation getNonReturners failed: argument numOfDays cannot be converted to number";
+			return result;
+		}
+		
+	}
 	
 	
 	private void updateServers()
