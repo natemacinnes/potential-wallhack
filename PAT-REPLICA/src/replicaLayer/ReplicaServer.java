@@ -21,6 +21,7 @@ public class ReplicaServer extends Thread{
 	private String replicaName;
 	private int replicaPort;
 	private ReplicaInformation replicaInfo;
+	//TODO: modify LibraryServerInterface type
 	private HashMap<String,LibraryServerInterface> serversMap;
 	private HashMap<Integer,String> deliveryQueue;
 	private HashMap<Integer,String> holdbackQueue;
@@ -33,6 +34,7 @@ public class ReplicaServer extends Thread{
 		this.replicaName = replicaName;
 		replicaInfo = new ReplicaInformation();
 		replicaPort = replicaInfo.getReplicaPort(replicaName);
+		//TODO: modify LibraryServerInterface type
 		serversMap = new HashMap<String,LibraryServerInterface>();
 		deliveryQueue = new HashMap<Integer, String>();
 		holdbackQueue = new HashMap<Integer, String>();
@@ -224,6 +226,7 @@ public class ReplicaServer extends Thread{
 	
 	private String startServers()
 	{
+		//TODO: modify LibraryServerImpl type
 		serversMap.put("concordia", new LibraryServerImpl("concordia"));
 		serversMap.put("mcgill", new LibraryServerImpl("mcgill"));
 		serversMap.put("uqam", new LibraryServerImpl("uqam"));
