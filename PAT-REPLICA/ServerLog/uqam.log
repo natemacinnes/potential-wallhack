@@ -1,28 +1,8 @@
-Nov 27, 2014 9:23:04 PM serverLayer.LibraryServerImpl createAccount
+Nov 28, 2014 11:40:47 AM serverLayer.LibraryServerImpl createAccount
 FINER: ENTRY joedoe joedoe joedoe@mail 222-2222 joedoe joedoe concordia
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl areAccountInfoValid
+Nov 28, 2014 11:40:47 AM serverLayer.LibraryServerImpl areAccountInfoValid
 FINER: ENTRY joedoe joedoe joedoe@mail 222-2222 joedoe joedoe concordia
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl areAccountInfoValid
+Nov 28, 2014 11:40:47 AM serverLayer.LibraryServerImpl areAccountInfoValid
 FINER: RETURN true
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl createAccount
+Nov 28, 2014 11:40:47 AM serverLayer.LibraryServerImpl createAccount
 FINER: RETURN Operation createAccount succeed in concordia library
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl reserveBook
-FINER: ENTRY joedoe joedoe concordia Distributed System Kumar
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl validateAndGetAccount
-FINER: ENTRY joedoe joedoe
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl validateAndGetAccount
-FINER: RETURN modelLayer.Account@666e2862
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl fetchBook
-FINER: ENTRY Distributed System Kumar
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl fetchBook
-FINER: RETURN modelLayer.Book@b4ecbe8c
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl reserveBook
-FINER: RETURN
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl createAccount
-FINER: ENTRY doejoe doejoe joedoe@mail 222-2222 joedoe joedoe concordia
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl areAccountInfoValid
-FINER: ENTRY doejoe doejoe joedoe@mail 222-2222 joedoe joedoe concordia
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl areAccountInfoValid
-FINER: RETURN true
-Nov 27, 2014 9:23:05 PM serverLayer.LibraryServerImpl createAccount
-FINER: RETURN Operation createAccount failed: username already exist

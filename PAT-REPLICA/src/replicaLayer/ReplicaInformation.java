@@ -9,9 +9,12 @@ public class ReplicaInformation {
 	private int sequencerPort;
 	private int frontEndPort;
 	private int replicaManagerPort;
+	private int heartbeatListenerPort;
 	private String sequencerIp;
 	private String frontEndIp;
 	private String replicaManagerIp;
+	private String heartbeatListenerIp;
+	
 	
 	
 	public ReplicaInformation(){
@@ -22,9 +25,11 @@ public class ReplicaInformation {
 		sequencerPort = 7780;
 		frontEndPort = 7781;
 		replicaManagerPort = 7782;
+		heartbeatListenerPort = 7783;
 		sequencerIp = "127.0.0.1";
 		frontEndIp = "127.0.0.1";
 		replicaManagerIp = "127.0.0.1";
+		heartbeatListenerIp = "127.0.0.1";
 	}
 	
 	//get the port of a specific port
@@ -84,6 +89,14 @@ public class ReplicaInformation {
 
 	public String getReplicaManagerIp() {
 		return replicaManagerIp;
+	}
+
+	public int getHeartbeatListenerPort() {
+		return heartbeatListenerPort;
+	}
+
+	public String getHeartbeatListenerIp() {
+		return heartbeatListenerIp;
 	}
 	
 

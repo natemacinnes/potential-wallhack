@@ -28,9 +28,13 @@ public class ReplicaServer extends Thread{
 	private boolean runReplica = false;
 	private int messageSequenceNumber;
 	private String logFileName;
+	private HeartbeatListener listener;
+	private HeartbeatClient client;
+	private boolean supportHighAvailability;
 	
-	public ReplicaServer(String replicaName)
+	public ReplicaServer(String replicaName, boolean mode)
 	{
+		supportHighAvailability = mode;
 		this.replicaName = replicaName;
 		replicaInfo = new ReplicaInformation();
 		replicaPort = replicaInfo.getReplicaPort(replicaName);
@@ -40,6 +44,8 @@ public class ReplicaServer extends Thread{
 		holdbackQueue = new HashMap<Integer, String>();
 		messageSequenceNumber = 0;
 		logFileName = "replicaLog.txt";
+		listener = new HeartbeatListener(replicaName,replicaPort);
+		client = new HeartbeatClient(replicaName);
 	}
 	
 	public String getReplicaName()
@@ -63,6 +69,12 @@ public class ReplicaServer extends Thread{
 		Collection<String> replicaNames = replicaInfo.getReplicaName();
 		runReplica = true;
     	DatagramSocket aSocket = null;
+    	
+    	if(supportHighAvailability)
+    	{
+        	listener.start();
+        	client.start();
+    	}
     	
 		try{
 			// create socket at agreed port
@@ -136,7 +148,6 @@ public class ReplicaServer extends Thread{
   	  				    		aSocket.send(reply);	
   	  						}
   	  					}
-  						
   					}
   				}
   				//If the operation should be performed by the replica
@@ -162,6 +173,12 @@ public class ReplicaServer extends Thread{
 			    	aSocket.send(reply);
   				}
     		}
+ 			
+ 	    	if(supportHighAvailability)
+ 	    	{
+ 	 			listener.stopListener();
+ 	 			client.stopClient();
+ 	    	}
 		}
 		catch(NumberFormatException e){
 			System.out.println("Formatting number: " + e.getMessage());
