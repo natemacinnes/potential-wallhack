@@ -19,6 +19,7 @@ getNonReturners
 	- “list”
 	 IF empty no non returners
 
-UDP method calls “methodinitials.method.arguments.institutionname”
+UDP method calls “sequence#.methodinitials.method.arguments.institutionname”
 	ex: reserveInterLibrary (Username, Password, BookName, AuthorName)
-		-> rtl.username.password.bookname.authornam.concordia
+		-> 11111.rtl.username.password.bookname.authornam.concordia
+	*sequence number only applicable between sequencer and replicas.
