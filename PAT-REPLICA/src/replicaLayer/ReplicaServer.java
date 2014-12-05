@@ -33,12 +33,13 @@ public class ReplicaServer extends Thread{
 	private HeartbeatClient client;
 	private boolean supportHighAvailability;
 	private boolean sendFalseResult;
+	private int numOperationBeforeCrash;
 	
 	
-	public ReplicaServer(String replicaName, boolean mode)
+	public ReplicaServer(String replicaName)
 	{
 		System.setProperty("java.net.preferIPv4Stack" , "true");
-		supportHighAvailability = mode;
+		supportHighAvailability = false;  //default mode is software failures tolerant
 		this.replicaName = replicaName;
 		replicaInfo = new ReplicaInformation();
 		replicaPort = replicaInfo.getReplicaPort(replicaName);
@@ -51,6 +52,7 @@ public class ReplicaServer extends Thread{
 		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
 		sendFalseResult = false;
+		numOperationBeforeCrash = 3;
 	}
 	
 	public String getReplicaName()
@@ -93,9 +95,7 @@ public class ReplicaServer extends Thread{
 		    //keep server alive
  			while(runReplica){
  				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
- 				System.out.println("not received");
   				aSocket.receive(request);
-  				System.out.println("received");
   				
   				String operationReceived = extractMessage(request);
   				
@@ -204,26 +204,30 @@ public class ReplicaServer extends Thread{
 	
 	private String performReplicaOperation(String operation)
 	{
-		boolean isStartOperation = operation.equals("startServers");
-		boolean isRestartOperation = operation.equals("restartServers");
-		boolean isSendFalseResult = operation.equals("sendFalseResult");
-		boolean isStopSendingHeartbeat = operation.equals("stopSendingHeartbeat");
+		boolean isStartSFOperation = operation.equals("startSoftareFailureTolerantServers");
+		boolean isRestartSFOperation = operation.equals("restartSoftareFailureTolerantServers");
+		boolean isStartHAOperation = operation.equals("startHighlyAvailableServers");
+		boolean isRestartHAOperation = operation.equals("restartHighlyAvailableServers");
 		
-		if(isStartOperation)
+		if(isStartSFOperation)
 		{
+			supportHighAvailability = false;
 			return startServers();
 		}
-		else if(isRestartOperation)
+		else if(isRestartSFOperation)
 		{
+			supportHighAvailability = false;
 			return restartServers();
 		}
-		else if(isSendFalseResult && !supportHighAvailability)
+		else if(isStartHAOperation)
 		{
-			return prepareNextFalseResult();
+			supportHighAvailability = true;
+			return startServers();
 		}
-		else if(isStopSendingHeartbeat && supportHighAvailability)
+		else if(isRestartHAOperation)
 		{
-			return stopHeartbeatClient();
+			supportHighAvailability = true;
+			return restartServers();
 		}
 		else
 		{
@@ -239,29 +243,39 @@ public class ReplicaServer extends Thread{
 		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
 		boolean isReserveBookOperation = operation.contains("reserveBook");
 		
-		if(sendFalseResult && !supportHighAvailability)
+		//replica1 is going to be the one that crashes for the purpose of the demo
+		if(numOperationBeforeCrash == 0 && supportHighAvailability && replicaName.equals("replica1"))
 		{
-			sendFalseResult = false;
+			stopHeartbeatClient();
+		}
+		
+		if(numOperationBeforeCrash == 0 && !supportHighAvailability && replicaName.equals("replica1"))
+		{
 			return "wrong result";
 		}
 		else if(isCreateAccountOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeCreateAccount(operation);
 		}
 		else if(isReserveBookOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeReserveBook(operation);
 		}
 		else if(isReserveInterLibraryOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeReserveInterLibrary(operation);
 		}
 		else if(isSetDurationOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeSetDuration(operation);
 		}
 		else if(isGetNonReturnersOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeGetNonReturners(operation);
 		}
 		else
@@ -301,11 +315,13 @@ public class ReplicaServer extends Thread{
 	
 	private boolean isReplicaOperation(String operation)
 	{
-		boolean isStartOperation = operation.equals("startServers");
-		boolean isRestartOperation = operation.equals("restartServers");
+		boolean isStartSFOperation = operation.equals("startSoftareFailureTolerantServers");
+		boolean isRestartSFOperation = operation.equals("restartSoftareFailureTolerantServers");
+		boolean isStartHAOperation = operation.equals("startHighlyAvailableServers");
+		boolean isRestartHAOperation = operation.equals("restartHighlyAvailableServers");
 		boolean isSendFalseResult = operation.equals("sendFalseResult");
 		
-		return (isStartOperation || isRestartOperation || isSendFalseResult);
+		return (isStartSFOperation || isRestartSFOperation || isStartHAOperation || isRestartHAOperation ||  isSendFalseResult);
 		
 	}
 	
@@ -612,10 +628,9 @@ public class ReplicaServer extends Thread{
 		return replicaName + " next result will be incorrect";
 	}
 	
-	private String stopHeartbeatClient()
+	private void stopHeartbeatClient()
 	{
 		client.stopClient();
-		return replicaName + " heartbeat client stopped";
 	}
 
 }
