@@ -12,7 +12,7 @@ public class TestDriver {
 		DatagramSocket aSocket = null;
 		try {
 			aSocket = new DatagramSocket(); 
-			String msg = "test1.method" + Math.random();
+			String msg = "reserveBook.natemacinnes.natemacinnes.bookname.authorname.concordia";
 			byte [] m = msg.getBytes();
 			InetAddress aHost = InetAddress.getByName("localhost");		                                                 
 			DatagramPacket request =

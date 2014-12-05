@@ -43,7 +43,7 @@ public class SequencerRequestHandler extends Thread {
 		try
 		{
 			// String[] parts = message.split(".");
-			String result = "##sequencer_test##" + message;
+			String result = message;
 			//send result back to calling server
 			System.out.println("Broadcasting message...");
 			

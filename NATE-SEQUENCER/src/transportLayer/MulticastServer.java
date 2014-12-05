@@ -27,7 +27,7 @@ public class MulticastServer {
 			
 			DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(multicastAddr), multicastPort);
 			
-			System.out.println("Sending messages to relicas...");
+			System.out.println("Sending messages to replicas...");
 			s.send(packet);
 			Thread.sleep(1000);
 		} catch (Exception e) {

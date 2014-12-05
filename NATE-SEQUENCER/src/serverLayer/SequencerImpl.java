@@ -42,7 +42,7 @@ public class SequencerImpl implements SequencerInterface {
 	
 	@Override
 	public void createSequence(String msg) {
-		msg = seqNum + msg;
+		msg = seqNum +"."+ msg;
 		sentMessages.put(seqNum, msg);
 		ms.setMessage(msg);
 		seqNum++;
