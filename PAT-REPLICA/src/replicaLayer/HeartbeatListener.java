@@ -14,7 +14,7 @@ public class HeartbeatListener extends Thread {
 	
 	private boolean runListener;
 	private int port;
-	private Set<Integer> expectedSenders;
+	private Set<String> expectedSenders;
 	private String owner;
 	private ReplicaInformation replicaInfo;
 	
@@ -24,7 +24,7 @@ public class HeartbeatListener extends Thread {
 	{
 		runListener = false;
 		this.port = port;
-		expectedSenders = new HashSet<Integer>();
+		expectedSenders = new HashSet<String>();
 		owner = replicaName;
 		replicaInfo = new ReplicaInformation();
 	}
@@ -53,7 +53,7 @@ public class HeartbeatListener extends Thread {
   				aSocket.receive(request);
   				synchronized(expectedSenders)
   				{
-  					expectedSenders.add(request.getPort());
+  					expectedSenders.add(request.getAddress().toString());
   				}
     		}
 		}
@@ -74,18 +74,18 @@ public class HeartbeatListener extends Thread {
 				//don't validate the replica to which this listener belongs to
 				if(!replicaName.equals(owner))
 				{
-					int port = replicaInfo.getReplicaPort(replicaName);
+					String ip = replicaInfo.getReplicaIp(replicaName);
 					/*
 					 * if we haven't receive anything from this replica,
 					 * inform the replica manager
 					 */
-					if(!expectedSenders.contains(port))
+					if(!expectedSenders.contains(ip))
 					{
 				    	DatagramSocket aSocket = null;
 						try{
 							// create socket at agreed port
-					    	aSocket = new DatagramSocket(port);
-			  				String result = "suspect replica " + replicaName + " crashed";
+					    	aSocket = new DatagramSocket();
+			  				String result = "suspect " + replicaName + " crashed";
 			  				
 			  				//send result to replica manager
 							InetAddress replicaManagerIp = InetAddress.getByName(replicaInfo.getReplicaManagerIp());

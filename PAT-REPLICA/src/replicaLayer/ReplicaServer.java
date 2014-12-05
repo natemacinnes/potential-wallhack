@@ -33,7 +33,7 @@ public class ReplicaServer extends Thread{
 	private HeartbeatClient client;
 	private boolean supportHighAvailability;
 	private boolean sendFalseResult;
-	
+	private int numOperationBeforeCrash;
 	
 	
 	public ReplicaServer(String replicaName)
@@ -52,6 +52,7 @@ public class ReplicaServer extends Thread{
 		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
 		sendFalseResult = false;
+		numOperationBeforeCrash = 3;
 	}
 	
 	public String getReplicaName()
@@ -207,8 +208,6 @@ public class ReplicaServer extends Thread{
 		boolean isRestartSFOperation = operation.equals("restartSoftareFailureTolerantServers");
 		boolean isStartHAOperation = operation.equals("startHighlyAvailableServers");
 		boolean isRestartHAOperation = operation.equals("restartHighlyAvailableServers");
-		boolean isSendFalseResult = operation.equals("sendFalseResult");
-		boolean isStopSendingHeartbeat = operation.equals("stopSendingHeartbeat");
 		
 		if(isStartSFOperation)
 		{
@@ -230,14 +229,6 @@ public class ReplicaServer extends Thread{
 			supportHighAvailability = true;
 			return restartServers();
 		}
-		else if(isSendFalseResult && !supportHighAvailability)
-		{
-			return prepareNextFalseResult();
-		}
-		else if(isStopSendingHeartbeat && supportHighAvailability)
-		{
-			return stopHeartbeatClient();
-		}
 		else
 		{
 			return "This operation was not recognized by the system";
@@ -252,29 +243,39 @@ public class ReplicaServer extends Thread{
 		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
 		boolean isReserveBookOperation = operation.contains("reserveBook");
 		
-		if(sendFalseResult && !supportHighAvailability)
+		//replica1 is going to be the one that crashes for the purpose of the demo
+		if(numOperationBeforeCrash == 0 && supportHighAvailability && replicaName.equals("replica1"))
 		{
-			sendFalseResult = false;
+			stopHeartbeatClient();
+		}
+		
+		if(numOperationBeforeCrash == 0 && !supportHighAvailability && replicaName.equals("replica1"))
+		{
 			return "wrong result";
 		}
 		else if(isCreateAccountOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeCreateAccount(operation);
 		}
 		else if(isReserveBookOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeReserveBook(operation);
 		}
 		else if(isReserveInterLibraryOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeReserveInterLibrary(operation);
 		}
 		else if(isSetDurationOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeSetDuration(operation);
 		}
 		else if(isGetNonReturnersOperation)
 		{
+			numOperationBeforeCrash--;
 			return invokeGetNonReturners(operation);
 		}
 		else
@@ -627,10 +628,9 @@ public class ReplicaServer extends Thread{
 		return replicaName + " next result will be incorrect";
 	}
 	
-	private String stopHeartbeatClient()
+	private void stopHeartbeatClient()
 	{
 		client.stopClient();
-		return replicaName + " heartbeat client stopped";
 	}
 
 }
