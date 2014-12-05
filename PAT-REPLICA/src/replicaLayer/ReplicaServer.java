@@ -148,7 +148,8 @@ public class ReplicaServer extends Thread{
   	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
   	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
   	  				    			frontEndIp, replicaInfo.getFrontEndPort());
-  	  				    		aSocket.send(reply);	
+  	  				    		aSocket.send(reply);
+  	  				    		System.out.println("result was sent to " + replicaInfo.getFrontEndIp() + " on port " + replicaInfo.getFrontEndPort());
   	  						}
   	  					}
   					}

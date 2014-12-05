@@ -19,17 +19,17 @@ public class ReplicaInformation {
 	
 	public ReplicaInformation(){
 		networkInfoList = new HashMap<String,String>();
-		networkInfoList.put("replica1", "7777-127.0.0.1");
+		networkInfoList.put("replica1", "7777-172.30.90.189");
 		networkInfoList.put("replica2", "7778-127.0.0.1");
 		networkInfoList.put("replica3", "7779-127.0.0.1");
 		sequencerPort = 7780;
-		frontEndPort = 7781;
+		frontEndPort = 2021;
 		replicaManagerPort = 7782;
 		heartbeatListenerPort = 7783;
 		sequencerIp = "127.0.0.1";
-		frontEndIp = "127.0.0.1";
+		frontEndIp = "172.30.14.22";
 		replicaManagerIp = "127.0.0.1";
-		heartbeatListenerIp = "127.0.0.1";
+		heartbeatListenerIp = "172.30.90.189";  //should be the same as replica ip
 	}
 	
 	//get the port of a specific port
