@@ -30,9 +30,6 @@ public class ReplicaResultListener extends Thread {
 
 			while (!messagesReceived) {
 				
-				//TESTtet9
-				
-				
 				
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				// get request
