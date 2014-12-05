@@ -35,10 +35,10 @@ public class ReplicaServer extends Thread{
 	private boolean sendFalseResult;
 	
 	
-	public ReplicaServer(String replicaName, boolean mode)
+	public ReplicaServer(String replicaName)
 	{
 		System.setProperty("java.net.preferIPv4Stack" , "true");
-		supportHighAvailability = mode;
+		supportHighAvailability = false;  //default mode is software failures tolerant
 		this.replicaName = replicaName;
 		replicaInfo = new ReplicaInformation();
 		replicaPort = replicaInfo.getReplicaPort(replicaName);
@@ -93,9 +93,7 @@ public class ReplicaServer extends Thread{
 		    //keep server alive
  			while(runReplica){
  				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
- 				System.out.println("not received");
   				aSocket.receive(request);
-  				System.out.println("received");
   				
   				String operationReceived = extractMessage(request);
   				
@@ -204,17 +202,31 @@ public class ReplicaServer extends Thread{
 	
 	private String performReplicaOperation(String operation)
 	{
-		boolean isStartOperation = operation.equals("startServers");
-		boolean isRestartOperation = operation.equals("restartServers");
+		boolean isStartSFOperation = operation.equals("startSoftareFailureTolerantServers");
+		boolean isRestartSFOperation = operation.equals("restartSoftareFailureTolerantServers");
+		boolean isStartHAOperation = operation.equals("startHighlyAvailableServers");
+		boolean isRestartHAOperation = operation.equals("restartHighlyAvailableServers");
 		boolean isSendFalseResult = operation.equals("sendFalseResult");
 		boolean isStopSendingHeartbeat = operation.equals("stopSendingHeartbeat");
 		
-		if(isStartOperation)
+		if(isStartSFOperation)
 		{
+			supportHighAvailability = false;
 			return startServers();
 		}
-		else if(isRestartOperation)
+		else if(isRestartSFOperation)
 		{
+			supportHighAvailability = false;
+			return restartServers();
+		}
+		else if(isStartHAOperation)
+		{
+			supportHighAvailability = true;
+			return startServers();
+		}
+		else if(isRestartHAOperation)
+		{
+			supportHighAvailability = true;
 			return restartServers();
 		}
 		else if(isSendFalseResult && !supportHighAvailability)
@@ -301,11 +313,13 @@ public class ReplicaServer extends Thread{
 	
 	private boolean isReplicaOperation(String operation)
 	{
-		boolean isStartOperation = operation.equals("startServers");
-		boolean isRestartOperation = operation.equals("restartServers");
+		boolean isStartSFOperation = operation.equals("startSoftareFailureTolerantServers");
+		boolean isRestartSFOperation = operation.equals("restartSoftareFailureTolerantServers");
+		boolean isStartHAOperation = operation.equals("startHighlyAvailableServers");
+		boolean isRestartHAOperation = operation.equals("restartHighlyAvailableServers");
 		boolean isSendFalseResult = operation.equals("sendFalseResult");
 		
-		return (isStartOperation || isRestartOperation || isSendFalseResult);
+		return (isStartSFOperation || isRestartSFOperation || isStartHAOperation || isRestartHAOperation ||  isSendFalseResult);
 		
 	}
 	

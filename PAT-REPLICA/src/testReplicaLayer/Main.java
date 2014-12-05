@@ -18,11 +18,11 @@ public class Main {
 	public static void main(String[] args) {
 		String replicaName = "replica1";
 		String institution = "concordia";
-		ReplicaServer replica = new ReplicaServer(replicaName, false);
+		ReplicaServer replica = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		replica.start();
 		
-		MulticastSocket aSocket = null;
+		/*MulticastSocket aSocket = null;
 		try {
 			//Start servers
 			aSocket = new MulticastSocket(networkInfo.getReplicaPort(replicaName));  
@@ -35,12 +35,10 @@ public class Main {
 			
 			Thread.sleep(3000);
 			
-			//Receive reply
 			byte[] buffer = new byte[1000];
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
 			aSocket.receive(reply);
 			
-			//get only the non-empty bit out of the byte array
 			byte [] byteReceive = new byte[reply.getLength()];
 			for(int i = 0; i < reply.getLength(); i++){
 				byteReceive[i] = reply.getData()[i];
@@ -54,13 +52,6 @@ public class Main {
 			request =
 			 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
 			aSocket.send(request);
-			//Thread.sleep(3000);
-			//Send createAccount operation
-			/*msg = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
-			m = msg.getBytes();		                                                 
-			request = new DatagramPacket(m,  msg.length(), aHost, replica.getReplicaPort());
-			aSocket.send(request);
-			System.out.println("request to create account was send");*/
 
 			aSocket.close();
 			
@@ -76,7 +67,7 @@ public class Main {
 		}finally {
 			if(aSocket != null) 
 				aSocket.close(); 
-			}	
+			}	*/
 
 	}
 

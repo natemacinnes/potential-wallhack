@@ -28,7 +28,7 @@ public class ReplicaServerTest {
 	@Test(expected = NullPointerException.class)
 	public void ReplicaServerTest_001() {
 		String replicaName = "test";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 	}
 	
 	/*
@@ -37,7 +37,7 @@ public class ReplicaServerTest {
 	@Test
 	public void ReplicaServerTest_002() {
 		String replicaName = "replica3";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation ri = new ReplicaInformation();
 		Assert.assertTrue(ri.isReplicaNameValid(r1.getReplicaName()));
 	}
@@ -50,7 +50,7 @@ public class ReplicaServerTest {
 	public void ReplicaServerTest_003() {
 		String replicaName = "replica2";
 		String expectedResult = "Replica " + replicaName + " started its servers";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -98,7 +98,7 @@ public class ReplicaServerTest {
 	public void ReplicaServerTest_004() {
 		String replicaName = "replica2";
 		String expectedResult = "Replica " + replicaName + " restarted its servers";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -145,7 +145,7 @@ public class ReplicaServerTest {
 	public void ReplicaServerTest_005() {
 		String replicaName = "replica2";
 		String expectedResult = "This operation was not recognized by the system";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -192,9 +192,9 @@ public class ReplicaServerTest {
 	@Test
 	public void ReplicaServerTest_006() {
 		int expectedResult = 1;
-		ReplicaServer r1 = new ReplicaServer("replica1", false);
-		ReplicaServer r2 = new ReplicaServer("replica2", false);
-		ReplicaServer r3 = new ReplicaServer("replica3", false);
+		ReplicaServer r1 = new ReplicaServer("replica1");
+		ReplicaServer r2 = new ReplicaServer("replica2");
+		ReplicaServer r3 = new ReplicaServer("replica3");
 		r1.start();
 		r2.start();
 		r3.start();
@@ -247,7 +247,7 @@ public class ReplicaServerTest {
 		String replicaName = "replica3";
 		String institution = "concordia";
 		String expectedResult = "Operation createAccount succeed in " + institution + " library";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -311,7 +311,7 @@ public class ReplicaServerTest {
 		String institution = "mcgill";
 		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
 		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -404,7 +404,7 @@ public class ReplicaServerTest {
 		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
 		String expectedResult3 = "Operation reserveBook failed: No more copies available";
 		String expectedResult4 = "Operation reserveInterLibrary succeed in concordia library";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -540,7 +540,7 @@ public class ReplicaServerTest {
 		String expectedResult1 = "Operation createAccount succeed in " + institution + " library";
 		String expectedResult2 = "Operation reserveBook succeed in " + institution + " library";
 		String expectedResult3 = "Operation setDuration succeed in " + institution + " library";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -656,7 +656,7 @@ public class ReplicaServerTest {
 		String expectedResult3 = "Operation setDuration succeed in " + institution + " library";
 		String expectedResult4 = "concordia university:\n\nmcgill university:\njoedoe joedoe 222-2222\n\n";
 		expectedResult4 += "uqam university:\n\n";
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -793,7 +793,7 @@ public class ReplicaServerTest {
 		String institution = "concordia";
 		String expectedResult1 = "0.createAccount.joedoe.joedoe.joedoe@mail.222-2222.joedoe.joedoe." + institution;
 		String expectedResult2 = "1.reserveBook.joedoe.joedoe.Distributed System.Kumar." + institution;
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		String fileName = r1.getLogFileName();
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
@@ -868,7 +868,7 @@ public class ReplicaServerTest {
 		String institution = "concordia";
 		int expectedDeliveryQueueSize = 3;
 		int expectedMessageSequenceNumber = 3;
-		ReplicaServer r1 = new ReplicaServer(replicaName, false);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		String fileName = r1.getLogFileName();
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		PrintWriter printWriter = null;
@@ -936,7 +936,7 @@ public class ReplicaServerTest {
 		String replicaName = "replica1";
 		String expectedResult1 = "suspect replica replica2 crashed";
 		String expectedResult2 = "suspect replica replica3 crashed";
-		ReplicaServer r1 = new ReplicaServer(replicaName, true);
+		ReplicaServer r1 = new ReplicaServer(replicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
@@ -1000,7 +1000,7 @@ public class ReplicaServerTest {
 		String senderReplicaName = "replica1";
 		String receiverReplicaName = "replica2";
 		String expectedResult = senderReplicaName +  " heartbeat";
-		ReplicaServer r1 = new ReplicaServer(senderReplicaName, true);
+		ReplicaServer r1 = new ReplicaServer(senderReplicaName);
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		r1.start();
 		
