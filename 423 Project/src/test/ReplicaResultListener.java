@@ -120,7 +120,7 @@ public class ReplicaResultListener extends Thread {
 						//Replica 1 software failure
 						if ((resultSet[2].equals(resultSet[1]) )){
 						//Send result to the replica manager
-							//networkInfoList.containsValue(value)
+							//networkInfoList.containsValue(value)tes
 							
 						}
 						//Replica 2 software failure
