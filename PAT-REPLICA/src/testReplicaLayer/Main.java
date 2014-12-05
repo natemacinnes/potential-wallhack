@@ -22,6 +22,7 @@ public class Main {
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		replica.start();
 		
+		
 		/*MulticastSocket aSocket = null;
 		try {
 			//Start servers

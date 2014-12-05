@@ -59,6 +59,55 @@ public class ReplicaManagerImpl extends Thread {
   				
   				String message = extractMessage(request);
   				System.out.println(message);
+  				
+  				if(supportSoftwareFailure)
+  				{
+  					if(message.equals("replica1 send wrong result"))
+  					{
+  						numSFReplica1++;
+  						
+  						if(numSFReplica1 == 3)
+  						{
+  							numSFReplica1 = 0;
+  							msg = "restartSoftareFailureTolerantServers";
+  							m = msg.getBytes();
+  							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica1"));		                                                 
+  							request =
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica1"));
+  							aSocket.send(request);
+  						}
+  					}
+  					else if(message.equals("replica2 send wrong result"))
+  					{
+  						numSFReplica2++;
+  						
+  						if(numSFReplica2 == 3)
+  						{
+  							numSFReplica2 = 0;
+  							msg = "restartSoftareFailureTolerantServers";
+  							m = msg.getBytes();
+  							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica2"));		                                                 
+  							request =
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica2"));
+  							aSocket.send(request);
+  						}
+  					}
+  					else if(message.equals("replica3 send wrong result"))
+  					{
+  						numSFReplica3++;
+  						
+  						if(numSFReplica3 == 3)
+  						{
+  							numSFReplica3 = 0;
+  							msg = "restartSoftareFailureTolerantServers";
+  							m = msg.getBytes();
+  							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica3"));		                                                 
+  							request =
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica3"));
+  							aSocket.send(request);
+  						}
+  					}
+  				}
 			}
 			
 		}catch (SocketException e){

@@ -8,6 +8,7 @@ public class Main {
 		System.out.println("1. Run RM in high availability mode");
 		System.out.println("2. Run RM in software failures tolerance mode");
 		System.out.println("3. Exit");
+		
 	}
 
 	public static void main(String[] args) {
