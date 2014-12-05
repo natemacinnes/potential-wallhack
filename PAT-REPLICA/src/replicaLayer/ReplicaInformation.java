@@ -10,16 +10,18 @@ public class ReplicaInformation {
 	private int frontEndPort;
 	private int replicaManagerPort;
 	private int heartbeatListenerPort;
+	private int multicastPort;
 	private String sequencerIp;
 	private String frontEndIp;
 	private String replicaManagerIp;
 	private String heartbeatListenerIp;
+	private String multicastAddr;
 	
 	
 	
 	public ReplicaInformation(){
 		networkInfoList = new HashMap<String,String>();
-		networkInfoList.put("replica1", "7777-172.30.90.189");
+		networkInfoList.put("replica1", "7777-132.205.95.21");
 		networkInfoList.put("replica2", "7778-127.0.0.1");
 		networkInfoList.put("replica3", "7779-127.0.0.1");
 		sequencerPort = 7780;
@@ -27,9 +29,11 @@ public class ReplicaInformation {
 		replicaManagerPort = 7782;
 		heartbeatListenerPort = 7783;
 		sequencerIp = "127.0.0.1";
-		frontEndIp = "172.30.14.22";
+		frontEndIp = "132.205.95.22";
 		replicaManagerIp = "127.0.0.1";
-		heartbeatListenerIp = "172.30.90.189";  //should be the same as replica ip
+		heartbeatListenerIp = "132.205.95.21";  //should be the same as replica ip
+		multicastPort = 5000;
+		multicastAddr = "224.24.24.24";
 	}
 	
 	//get the port of a specific port
@@ -97,6 +101,22 @@ public class ReplicaInformation {
 
 	public String getHeartbeatListenerIp() {
 		return heartbeatListenerIp;
+	}
+
+	public int getMulticastPort() {
+		return multicastPort;
+	}
+
+	public void setMulticastPort(int multicastPort) {
+		this.multicastPort = multicastPort;
+	}
+
+	public String getMulticastAddr() {
+		return multicastAddr;
+	}
+
+	public void setMulticastAddr(String multicastAddr) {
+		this.multicastAddr = multicastAddr;
 	}
 	
 

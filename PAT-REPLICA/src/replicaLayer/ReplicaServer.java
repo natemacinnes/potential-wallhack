@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class ReplicaServer extends Thread{
 	
 	public ReplicaServer(String replicaName, boolean mode)
 	{
+		System.setProperty("java.net.preferIPv4Stack" , "true");
 		supportHighAvailability = mode;
 		this.replicaName = replicaName;
 		replicaInfo = new ReplicaInformation();
@@ -44,7 +46,7 @@ public class ReplicaServer extends Thread{
 		serversMap = new HashMap<String,LibraryServerInterface>();
 		deliveryQueue = new HashMap<Integer, String>();
 		holdbackQueue = new HashMap<Integer, String>();
-		messageSequenceNumber = 0;
+		messageSequenceNumber = 1;
 		logFileName = "replicaLog.txt";
 		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
@@ -71,7 +73,8 @@ public class ReplicaServer extends Thread{
 	{
 		Collection<String> replicaNames = replicaInfo.getReplicaName();
 		runReplica = true;
-    	DatagramSocket aSocket = null;
+    	//DatagramSocket aSocket = null;
+    	MulticastSocket aSocket = null;
     	
     	if(supportHighAvailability)
     	{
@@ -81,13 +84,18 @@ public class ReplicaServer extends Thread{
     	
 		try{
 			// create socket at agreed port
-	    	aSocket = new DatagramSocket(replicaPort);
+	    	//aSocket = new DatagramSocket(replicaPort);
+			aSocket = new MulticastSocket(replicaInfo.getMulticastPort());
+			
+			aSocket.joinGroup(InetAddress.getByName(replicaInfo.getMulticastAddr()));
 	    	
 			byte[] buffer = new byte[1000];
 		    //keep server alive
  			while(runReplica){
  				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+ 				System.out.println("not received");
   				aSocket.receive(request);
+  				System.out.println("received");
   				
   				String operationReceived = extractMessage(request);
   				
@@ -141,6 +149,7 @@ public class ReplicaServer extends Thread{
   	  						{
   	  							deliveryQueue.put(msgNumber, operationReceived);
   	  							String result = performLibraryOperation(operationReceived);
+  	  							System.out.println("received " + operationReceived);
   	  						    recordOperation(operationReceived);
   	  						    messageSequenceNumber++;
   	  						    
@@ -158,6 +167,7 @@ public class ReplicaServer extends Thread{
   				else if(isReplicaOperation(operationReceived))
   				{
   					String result = performReplicaOperation(operationReceived);
+  					System.out.println("received " + operationReceived);
   					
 					//Send result to replica Manager
 					InetAddress replicaManagerIp = InetAddress.getByName(replicaInfo.getReplicaManagerIp());
