@@ -33,6 +33,7 @@ public class ReplicaServer extends Thread{
 	private boolean supportHighAvailability;
 	private boolean sendFalseResult;
 	
+	
 	public ReplicaServer(String replicaName, boolean mode)
 	{
 		supportHighAvailability = mode;

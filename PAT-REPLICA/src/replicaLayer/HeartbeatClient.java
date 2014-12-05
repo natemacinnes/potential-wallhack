@@ -13,6 +13,7 @@ public class HeartbeatClient extends Thread {
 	private ReplicaInformation replicaInfo;
 	
 	
+	
 	public HeartbeatClient(String replicaName)
 	{
 		runClient = false;

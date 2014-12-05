@@ -19,6 +19,7 @@ public class HeartbeatListener extends Thread {
 	private ReplicaInformation replicaInfo;
 	
 	
+	
 	public HeartbeatListener(String replicaName, int port)
 	{
 		runListener = false;
