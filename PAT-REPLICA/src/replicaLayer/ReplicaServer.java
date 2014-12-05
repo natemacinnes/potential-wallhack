@@ -31,6 +31,7 @@ public class ReplicaServer extends Thread{
 	private HeartbeatListener listener;
 	private HeartbeatClient client;
 	private boolean supportHighAvailability;
+	private boolean sendFalseResult;
 	
 	public ReplicaServer(String replicaName, boolean mode)
 	{
@@ -46,6 +47,7 @@ public class ReplicaServer extends Thread{
 		logFileName = "replicaLog.txt";
 		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
+		sendFalseResult = false;
 	}
 	
 	public String getReplicaName()
@@ -192,6 +194,8 @@ public class ReplicaServer extends Thread{
 	{
 		boolean isStartOperation = operation.equals("startServers");
 		boolean isRestartOperation = operation.equals("restartServers");
+		boolean isSendFalseResult = operation.equals("sendFalseResult");
+		boolean isStopSendingHeartbeat = operation.equals("stopSendingHeartbeat");
 		
 		if(isStartOperation)
 		{
@@ -200,6 +204,14 @@ public class ReplicaServer extends Thread{
 		else if(isRestartOperation)
 		{
 			return restartServers();
+		}
+		else if(isSendFalseResult && !supportHighAvailability)
+		{
+			return prepareNextFalseResult();
+		}
+		else if(isStopSendingHeartbeat && supportHighAvailability)
+		{
+			return stopHeartbeatClient();
 		}
 		else
 		{
@@ -215,7 +227,12 @@ public class ReplicaServer extends Thread{
 		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
 		boolean isReserveBookOperation = operation.contains("reserveBook");
 		
-		if(isCreateAccountOperation)
+		if(sendFalseResult && !supportHighAvailability)
+		{
+			sendFalseResult = false;
+			return "wrong result";
+		}
+		else if(isCreateAccountOperation)
 		{
 			return invokeCreateAccount(operation);
 		}
@@ -274,8 +291,9 @@ public class ReplicaServer extends Thread{
 	{
 		boolean isStartOperation = operation.equals("startServers");
 		boolean isRestartOperation = operation.equals("restartServers");
+		boolean isSendFalseResult = operation.equals("sendFalseResult");
 		
-		return (isStartOperation || isRestartOperation);
+		return (isStartOperation || isRestartOperation || isSendFalseResult);
 		
 	}
 	
@@ -574,6 +592,18 @@ public class ReplicaServer extends Thread{
 				printWriter.close();
 			}
 		}
+	}
+	
+	private String prepareNextFalseResult()
+	{
+		sendFalseResult = true;
+		return replicaName + " next result will be incorrect";
+	}
+	
+	private String stopHeartbeatClient()
+	{
+		client.stopClient();
+		return replicaName + " heartbeat client stopped";
 	}
 
 }
