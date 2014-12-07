@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
@@ -35,10 +36,10 @@ public class ReplicaManagerImpl extends Thread {
 	{
 		ReplicaInformation networkInfo = new ReplicaInformation();
 		
-		MulticastSocket aSocket = null;
+		DatagramSocket aSocket = null;
 		try {
 			//Start servers
-			aSocket = new MulticastSocket(networkInfo.getReplicaManagerPort());  
+			aSocket = new DatagramSocket(networkInfo.getReplicaManagerPort());  
 			
 			String msg;
 			//specify type of servers
@@ -48,8 +49,22 @@ public class ReplicaManagerImpl extends Thread {
 				msg = "startHighlyAvailableServers";
 			
 			byte [] m = msg.getBytes();
-			InetAddress aHost = InetAddress.getByName(networkInfo.getMulticastAddr());		                                                 
+			
+			//start replica1
+			InetAddress aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica1"));		                                                 
 			DatagramPacket request =
+			 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
+			aSocket.send(request);
+			
+			//start replica2
+			aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica2"));		                                                 
+			request =
+			 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
+			aSocket.send(request);
+			
+			//start replica3
+			aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica3"));		                                                 
+			request =
 			 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
 			aSocket.send(request);
 			
