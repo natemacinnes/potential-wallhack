@@ -288,7 +288,7 @@ public class ReplicaServer extends Thread{
 		serversMap.put("mcgill", new LibraryServerImpl("mcgill"));
 		serversMap.put("uqam", new LibraryServerImpl("uqam"));
 		messageSequenceNumber = 1;
-		numOperationBeforeCrash = 3;
+		numOperationBeforeCrash = 100;
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 
@@ -306,7 +306,7 @@ public class ReplicaServer extends Thread{
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 		updateServers();
-		numOperationBeforeCrash = 3;
+		numOperationBeforeCrash = 100;
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	
@@ -586,7 +586,7 @@ public class ReplicaServer extends Thread{
 			
 			while((operation = reader.readLine()) != null)
 			{
-				numOperationBeforeCrash = 3; //reset to 3 each time to be sure that all the operation are performed
+				numOperationBeforeCrash = 100; //reset to 3 each time to be sure that all the operation are performed
 				performLibraryOperation(operation);
 				deliveryQueue.put(messageSequenceNumber, operation);
 				messageSequenceNumber++;
