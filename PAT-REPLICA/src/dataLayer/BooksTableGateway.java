@@ -31,9 +31,10 @@ public class BooksTableGateway {
 	
 	//only there for testing purposes
 	private void createInitialBooks(){
-		Book book1 = new Book("Introduction to parallel computing", "Gosvan", 3);
-		Book book2 = new Book("Distributed System", "Kumar", 1);
-		Book book3 = new Book("Database architecture", "Bipin", 2);
+		//Add Book instance to hashmap for this server
+		Book book1 = new Book("game of thrones 1", "GRR Martin", 1);
+		Book book2 = new Book("game of thrones 2", "GRR Martin", 2);
+		Book book3 = new Book("game of thrones 3", "GRR Martin", 3);
 		
 		addBook(book1);
 		addBook(book2);

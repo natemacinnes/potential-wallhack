@@ -95,12 +95,14 @@ public class ReplicaServer extends Thread{
   				aSocket.receive(request);
   				
   				String operationReceived = extractMessage(request);
+  				System.out.println("1st received " + operationReceived);
   				
   				//If the message is an operation to be performed on the library
   				if(isLibraryOperation(operationReceived))
   				{
   					String[] msgParts = operationReceived.split("\\.");
   					int msgNumber = Integer.parseInt(msgParts[0]);
+  					System.out.println("received " + operationReceived);
   					
   					//If the replica received that message for the first time
   					if(!holdbackQueue.containsKey(msgNumber) && !deliveryQueue.containsKey(msgNumber))
@@ -146,7 +148,6 @@ public class ReplicaServer extends Thread{
   	  						{
   	  							deliveryQueue.put(msgNumber, operationReceived);
   	  							String result = performLibraryOperation(operationReceived);
-  	  							System.out.println("received " + operationReceived);
   	  						    recordOperation(operationReceived);
   	  						    messageSequenceNumber++;
   	  						    

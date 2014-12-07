@@ -226,7 +226,7 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		try{
 			accountsTable.addAccount(acc);
 		}catch(TableUniqueIdException e){
-			result = "Operation createAccount failed: username already exist";
+			result = "Operation createAccount failed: username already exists";
 			LOGGER.exiting(this.getClass().getName(), "createAccount", new String(result));
 			return result;
 		}
@@ -269,7 +269,7 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		}
 		catch(Exception e)
 		{
-			result = "Operation reserveBook failed: " + e.getMessage();
+			result = "Operation reserveBook failed: Book doesn' exists ";
 			LOGGER.exiting(this.getClass().getName(), "reserveBook", new String(result));
 			return result;
 		}
