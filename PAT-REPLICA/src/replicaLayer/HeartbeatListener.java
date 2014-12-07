@@ -41,7 +41,7 @@ public class HeartbeatListener extends Thread {
     	DatagramSocket aSocket = null;
     	runListener = true;
     	java.util.Timer eventHandler = new java.util.Timer();
-    	eventHandler.schedule(new checkReceivedHeartbeat() , 3000);
+    	eventHandler.schedule(new checkReceivedHeartbeat() , 6000);
 		try{
 			// create socket at agreed port
 	    	aSocket = new DatagramSocket(port);

@@ -2,6 +2,7 @@ package replicaLayer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,7 +33,6 @@ public class ReplicaServer extends Thread{
 	private HeartbeatListener listener;
 	private HeartbeatClient client;
 	private boolean supportHighAvailability;
-	private boolean sendFalseResult;
 	private int numOperationBeforeCrash;
 	
 	
@@ -47,12 +47,9 @@ public class ReplicaServer extends Thread{
 		serversMap = new HashMap<String,LibraryServerInterface>();
 		deliveryQueue = new HashMap<Integer, String>();
 		holdbackQueue = new HashMap<Integer, String>();
-		messageSequenceNumber = 1;
 		logFileName = "replicaLog.txt";
 		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
-		sendFalseResult = false;
-		numOperationBeforeCrash = 3;
 	}
 	
 	public String getReplicaName()
@@ -290,6 +287,14 @@ public class ReplicaServer extends Thread{
 		serversMap.put("concordia", new LibraryServerImpl("concordia"));
 		serversMap.put("mcgill", new LibraryServerImpl("mcgill"));
 		serversMap.put("uqam", new LibraryServerImpl("uqam"));
+		messageSequenceNumber = 1;
+		numOperationBeforeCrash = 3;
+		holdbackQueue.clear();
+		deliveryQueue.clear();
+
+		//Delete existing log file
+		File file  = new File(logFileName);
+		file.delete();
 		
 		return "Replica " + replicaName + " started its servers";
 	}
@@ -297,10 +302,11 @@ public class ReplicaServer extends Thread{
 	private String restartServers()
 	{
 		startServers();
-		messageSequenceNumber = 0;
+		messageSequenceNumber = 1;
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 		updateServers();
+		numOperationBeforeCrash = 3;
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	
@@ -580,6 +586,7 @@ public class ReplicaServer extends Thread{
 			
 			while((operation = reader.readLine()) != null)
 			{
+				numOperationBeforeCrash = 3; //reset to 3 each time to be sure that all the operation are performed
 				performLibraryOperation(operation);
 				deliveryQueue.put(messageSequenceNumber, operation);
 				messageSequenceNumber++;
@@ -620,12 +627,6 @@ public class ReplicaServer extends Thread{
 				printWriter.close();
 			}
 		}
-	}
-	
-	private String prepareNextFalseResult()
-	{
-		sendFalseResult = true;
-		return replicaName + " next result will be incorrect";
 	}
 	
 	private void stopHeartbeatClient()
