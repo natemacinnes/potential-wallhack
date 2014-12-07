@@ -186,7 +186,7 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
     /**
      * Operation reserveInterLibrary
      */
-    public void reserveInterLibrary(String username, String password, String bookName, String authorName)
+    public String reserveInterLibrary(String username, String password, String bookName, String authorName, String institution)
     {
         while(true)
         {
@@ -200,8 +200,10 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
                     _output.write_string(password);
                     _output.write_string(bookName);
                     _output.write_string(authorName);
+                    _output.write_string(institution);
                     _input = this._invoke(_output);
-                    return;
+                    String _arg_ret = _input.read_string();
+                    return _arg_ret;
                 }
                 catch(org.omg.CORBA.portable.RemarshalException _exception)
                 {
@@ -225,8 +227,7 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
                 corba.corbaOperationsOperations _self = (corba.corbaOperationsOperations) _so.servant;
                 try
                 {
-                    _self.reserveInterLibrary( username,  password,  bookName,  authorName);
-                    return;
+                    return _self.reserveInterLibrary( username,  password,  bookName,  authorName,  institution);
                 }
                 finally
                 {

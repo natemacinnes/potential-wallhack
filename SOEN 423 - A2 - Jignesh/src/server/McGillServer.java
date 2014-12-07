@@ -21,7 +21,7 @@ import userInfo.Book;
 
 
 
-public class McGillServer {
+public class McGillServer implements LibraryServer {
 
 	/**
 	 * @param args
@@ -63,29 +63,13 @@ public class McGillServer {
 		String host = "localhost";
 		final int port = 2020;
 		
-		//initialize ORB
-		ORB orb = ORB.init(args,null);
-		POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-	
+
 		//Obtain a reference
-		LibraryServerFunctionsImpl aBehavior = new LibraryServerFunctionsImpl(orb, host, port, institution, bookMap);
-		
-		byte[] id = rootPOA.activate_object(aBehavior);
-		org.omg.CORBA.Object ref = rootPOA.id_to_reference(id);
-		
-		//Translate to IOR and write to a file
-		String ior = orb.object_to_string(ref);
-		System.out.println(ior);
-		
-		PrintWriter file = new PrintWriter(institution + "ior.txt");
-		file.println(ior);
-		file.close();
+		//LibraryServerFunctionsImpl aBehavior = new LibraryServerFunctionsImpl(host, port, institution, bookMap);
+
 		
 		System.out.println(institution+" LibraryServer ready...\n\n");
-		
-		//active and run the ORB
-		rootPOA.the_POAManager().activate();
-		orb.run();
+
 	}
 
 }

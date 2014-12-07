@@ -25,6 +25,6 @@ public interface corbaOperationsOperations
     /**
      * Operation reserveInterLibrary
      */
-    public void reserveInterLibrary(String username, String password, String bookName, String authorName);
+    public String reserveInterLibrary(String username, String password, String bookName, String authorName, String institution);
 
 }

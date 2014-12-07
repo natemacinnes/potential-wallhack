@@ -17,7 +17,7 @@ import userInfo.Book;
 
 
 
-public class UQAMServer {
+public class UQAMServer implements LibraryServer {
 
 	/**
 	 * @param args
@@ -62,30 +62,12 @@ public class UQAMServer {
 		String host = "localhost";
 		int port = 2022;
 		
-		//initialize ORB
-		ORB orb = ORB.init(args,null);
-		POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-	
 		//Obtain a reference
-		//FIXME add the orb, location, host and port here whencreating servant instance
-		LibraryServerFunctionsImpl aBehavior = new LibraryServerFunctionsImpl(orb, host, port, location, bookMap);
-		byte[] id = rootPOA.activate_object(aBehavior);
-		org.omg.CORBA.Object ref = rootPOA.id_to_reference(id);
-		
-		//Translate to IOR and write to a file
-		String ior = orb.object_to_string(ref);
-		System.out.println(ior);
-		
-		PrintWriter file = new PrintWriter(location + "ior.txt");
-		file.println(ior);
-		file.close();
+		//LibraryServerFunctionsImpl aBehavior = new LibraryServerFunctionsImpl(host, port, location, bookMap);
+
 	
 		System.out.println(location+" LibraryServer ready...\n\n");
-		//System.out.println(location+" UDP Server ready...");
-		
-		//active and run the ORB
-		rootPOA.the_POAManager().activate();
-		orb.run();
+
 	}
 
 }

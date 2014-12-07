@@ -109,10 +109,12 @@ public abstract class corbaOperationsPOA extends org.omg.PortableServer.Servant
         String arg1_in = _is.read_string();
         String arg2_in = _is.read_string();
         String arg3_in = _is.read_string();
+        String arg4_in = _is.read_string();
 
-        reserveInterLibrary(arg0_in, arg1_in, arg2_in, arg3_in);
+        String _arg_result = reserveInterLibrary(arg0_in, arg1_in, arg2_in, arg3_in, arg4_in);
 
         _output = handler.createReply();
+        _output.write_string(_arg_result);
 
         return _output;
     }
