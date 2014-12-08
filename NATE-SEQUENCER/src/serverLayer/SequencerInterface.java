@@ -10,4 +10,6 @@ public interface SequencerInterface {
 
 	public abstract void startServers();
 
+	void resendMessage(int seqNumber);
+
 }

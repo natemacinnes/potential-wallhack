@@ -33,10 +33,12 @@ public class SequencerRequestHandler extends Thread {
 		
 		//convert the byte into a string
 		String textReceived = new String(byteReceived);
-		System.out.println("Broadcast message.");
 		
-		broadcastMessage(textReceived);
-	
+		if (textReceived.contains("resend")) {
+			receiveErrorMessage(textReceived);
+		} else {
+			broadcastMessage(textReceived);
+		}
 	}
 		
 	public void broadcastMessage(String message) {
@@ -55,7 +57,9 @@ public class SequencerRequestHandler extends Thread {
 	}
 	
 	public void receiveErrorMessage(String message) {
-		// TO-DO: error handling when a replica does not receive a message
+		String msg[] = message.split("\\.");
+		int seqNumber = Integer.parseInt(msg[1]);
+		sequencer.resendMessage(seqNumber);
 	}
 
 }

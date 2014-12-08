@@ -14,7 +14,6 @@ public class SequencerImpl implements SequencerInterface {
 	private static MulticastServer ms;
 	private UDPSequencerServer FEserver;
 	private UDPSequencerServer Rserver;
-	private UDPSequencerClient client;
 	private HashMap<Integer, String> sentMessages = new HashMap<Integer, String>();
 	
 	int clientRequest;
@@ -35,7 +34,6 @@ public class SequencerImpl implements SequencerInterface {
 	
 	@Override
 	public void receiveMessage(String msg) {
-		System.out.println("Receiving message on ms...");
 		createSequence(msg);
 	}
 	
@@ -49,6 +47,12 @@ public class SequencerImpl implements SequencerInterface {
 		broadcastSequence();
 	}
 	
+	@Override
+	public void resendMessage(int seqNumber) {
+	String msg = seqNumber + sentMessages.get(seqNumber);
+	ms.setMessage(msg);
+	broadcastSequence();	
+	}	
 	
 	@Override
 	public void broadcastSequence() {
@@ -59,10 +63,9 @@ public class SequencerImpl implements SequencerInterface {
 	@Override
 	public void startServers() {
 		System.out.println("Starting servers...");
-		
 		FEserver = new UDPSequencerServer(this, frontEndPort);
 		FEserver.start();
 		Rserver = new UDPSequencerServer(this, replicaPort);
 		Rserver.start();
-	}	
+	}
 }
