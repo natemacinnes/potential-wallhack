@@ -85,6 +85,16 @@ public class StudentAccount{
 		}
 	}
 	
+	public boolean setDuration(String book, int numDays) {
+		for (int i = 0; i < loans.size(); i ++ ) {
+			if (loans.get(i).getBook().getTitle().equalsIgnoreCase(book)) {
+				loans.get(i).setDuration(numDays);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void addLoan(Loan loan) {
 		this.loans.add(loan);
 	}
