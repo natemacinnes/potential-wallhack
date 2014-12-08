@@ -95,6 +95,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica1"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica1 to restart");
   						}
   					}
   					else if(message.equals("replica2 send wrong result") && !isRecovering)
@@ -111,6 +112,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica2"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica2 to restart");
   						}
   					}
   					else if(message.equals("replica3 send wrong result") && !isRecovering)
@@ -127,6 +129,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica3"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica3 to restart");
   						}
   					}
   				}
@@ -147,6 +150,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica1"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica1 to restart");
   						}
   					}
   					else if(message.equals("suspect replica2 crashed") && !isRecovering)
@@ -163,6 +167,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica2"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica2 to restart");
   						}
   					}
   					if(message.equals("suspect replica3 crashed") && !isRecovering)
@@ -179,6 +184,7 @@ public class ReplicaManagerImpl extends Thread {
   							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica3"));
   							aSocket.send(request);
   							isRecovering = true;
+  							System.out.println("RM sent request to replica3 to restart");
   						}
   					}
   				}
