@@ -95,7 +95,6 @@ public class ReplicaServer extends Thread{
   				aSocket.receive(request);
   				
   				String operationReceived = extractMessage(request);
-  				System.out.println("1st received " + operationReceived);
   				
   				//If the message is an operation to be performed on the library
   				if(isLibraryOperation(operationReceived))
@@ -155,6 +154,11 @@ public class ReplicaServer extends Thread{
   	  						    //crash by not sending any responses
   	  						    if(numOperationBeforeCrash != 0 || !replicaName.equals("replica1"))
   	  						    {
+  	  						    	if(supportHighAvailability)
+  	  						    	{
+  	  						    		int seqNum = messageSequenceNumber - 1;
+  	  						    		result += seqNum + "." + result; 
+  	  						    	}
   	  	  						    //Send result to front end
   	  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
   	  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
