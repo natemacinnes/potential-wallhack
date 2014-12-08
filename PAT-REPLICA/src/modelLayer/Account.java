@@ -85,14 +85,18 @@ public class Account {
 	
 	
 	
-	public void changeReservation(String bookTitle, int numDays){
+	public boolean changeReservation(String bookTitle, int numDays){
+		boolean found = false;
 		for(BookReservation reservation: reservationList){
 			Book book = reservation.getBook();
 			//change reservation duration
 			if(book.getBookTitle().equals(bookTitle)){
 				reservation.setDurationDays(numDays);
+				found  = true;
 			}
 		}
+		
+		return found;
 	}
 	
 	//check if the user has a book late for the amount of time specified

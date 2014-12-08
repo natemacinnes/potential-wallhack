@@ -136,12 +136,20 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		String result;
 		Account account = accountsTable.getAccount(username);
 		if(account == null){
-			result = "Operation setDuration failed: Username is wrong";
+			result = "Operation setDuration failed: username is wrong";
 			LOGGER.exiting(this.getClass().getName(), "setDuration", new String(result));
 			return result;
 		}
-		account.changeReservation(bookTitle, numDays);
+		boolean succeed = account.changeReservation(bookTitle, numDays);
 		
+		if(succeed)
+		{
+			result = "Operation setDuration succeed in " + institution + " library";
+		}
+		else
+		{
+			result = "Operation setDuration failed: loan doesn't exist";
+		}
 		result = "Operation setDuration succeed in " + institution + " library";
 		LOGGER.exiting(this.getClass().getName(), "setDuration", new String(result));
 		return result;
@@ -157,7 +165,7 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		
 		//validate admin credentials
 		if(!adminUsername.equals("Admin") || !adminPassword.equals("Admin")){
-			result = "Operation getNonReturners failed: Invalid credentials";
+			result = "Operation getNonReturners failed: invalid credentials";
 			LOGGER.exiting(this.getClass().getName(), "getNonReturners", new String(result));
 			return result;
 		}
@@ -269,7 +277,7 @@ public class LibraryServerImpl implements LibraryServerInterface, InterServerOpe
 		}
 		catch(Exception e)
 		{
-			result = "Operation reserveBook failed: Book doesn' exists ";
+			result = "Operation reserveBook failed: Book doesn't exists ";
 			LOGGER.exiting(this.getClass().getName(), "reserveBook", new String(result));
 			return result;
 		}
