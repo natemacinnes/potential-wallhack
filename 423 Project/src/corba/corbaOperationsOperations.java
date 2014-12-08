@@ -20,11 +20,16 @@ public interface corbaOperationsOperations
     /**
      * Operation getNonReturners
      */
-    public void getNonReturners(String adminUsername, String adminPassword, String educationalInstitution, int numdays);
+    public String getNonReturners(String adminUsername, String adminPassword, String educationalInstitution, int numdays);
 
     /**
      * Operation reserveInterLibrary
      */
     public String reserveInterLibrary(String username, String password, String bookName, String authorName, String institution);
+
+    /**
+     * Operation setDuration
+     */
+    public String setDuration(String username, String bookname, int numDays, String institution);
 
 }

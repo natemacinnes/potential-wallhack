@@ -40,8 +40,9 @@ public class corbaClient {
 			System.out
 					.println("Choice 2: Reserve a Local book at Concordia which works. Reserve the same nonavailable title, which doesn't work at McGill");
 			System.out
-					.println("Choice 3: getNonReturners for Concordia and McGill");
-			System.out.println("Choice 4: Reserve Interlibrary at Concordia");
+					.println("Choice 3: setDuration for Concordia " +
+							"\nChoice 4: getNonReturners for Concordia and McGill");
+			System.out.println("Choice 5: Reserve Interlibrary at Concordia");
 			choice = sc.nextInt();
 
 			if (choice == 1) {
@@ -52,18 +53,27 @@ public class corbaClient {
 				System.out.println(testReply);
 
 			} else if (choice == 2) {
-				String reply = frontEnd.reserveBook("jig_pa", "password1", "game of thrones 1", "GRR Martin", "concordia");
+				String reply = frontEnd.reserveBook("jig_pa", "password1",
+						"game of thrones 1", "GRR Martin", "concordia");
+				System.out.println(reply);
+
+			} else if (choice == 3) {
+				
+				String reply = frontEnd.setDuration( "jig_pa", "game of thrones 1", 14, "concordia");
+				System.out.println(reply);
+			} else if (choice ==4) {
+
+				String reply = frontEnd.getNonReturners("Admin", "Admin", "concordia", 14);
 				System.out.println(reply);
 				
-			} else if (choice == 3) {
+			} else if (choice == 5) {
 
-			} else if (choice == 4) {
-
-				String reply = frontEnd.reserveInterLibrary("jig_pa", "password1", "game of thrones 1", "GRR Martin", "concordia");
+				String reply = frontEnd.reserveInterLibrary("jig_pa",
+						"password1", "game of thrones 1", "GRR Martin",
+						"concordia");
 				System.out.println(reply);
 			}
 
-			
 		}
 	}
 

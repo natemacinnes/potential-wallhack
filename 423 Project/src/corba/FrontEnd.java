@@ -32,7 +32,7 @@ public class FrontEnd extends corbaOperationsPOA {
 	public static String argDelim = ".";
 	public final String confirmMsg = "confirm";
 	public static String replicaResult;
-	public String sequencerAddress = "132.205.95.190"; 
+	public String sequencerAddress = "132.205.95.191"; 
 
 
 	@Override
@@ -131,16 +131,53 @@ public class FrontEnd extends corbaOperationsPOA {
 	}
 
 	@Override
-	public void getNonReturners(String adminUsername, String adminPassword,
+	public String getNonReturners(String adminUsername, String adminPassword,
 			String educationalInstitution, int numdays) {
-		// TODO Auto-generated method stub
 
+		System.out.println("TEST calling reserveBook method from frontEnd");
+		// sends a UDP message to the Sequencer
+
+		DatagramSocket aSocket = null;
+
+		// Format arguments according to coding convention
+		String sequencerArgs = "getNonReturners" + argDelim + adminUsername + argDelim
+				+ adminPassword + argDelim + educationalInstitution + argDelim + numdays + argDelim ;
+		try {
+			aSocket = new DatagramSocket();
+
+			byte[] reqMsg = sequencerArgs.getBytes();// will receive the data
+
+			
+			DatagramPacket request = new DatagramPacket(reqMsg, reqMsg.length,
+					InetAddress.getByName(sequencerAddress), TestUDPPortSequencer);
+
+			// SEND REQUEST TO SEQUENCER
+			aSocket.send(request);
+
+			// start server
+			ReplicaResultListener rep1 = new ReplicaResultListener(this);
+			rep1.start();
+			rep1.join();
+
+		} catch (SocketException e) {
+			System.out.println("Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IO: " + e.getMessage());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (aSocket != null)
+				aSocket.close();
+		}
+
+		return replicaResult;
 	}
 
 	public String reserveInterLibrary(String username, String password,
 			String bookName, String authorName, String institution) {
 
-		System.out.println("TEST calling reserveBook method from frontEnd");
+		System.out.println("TEST calling ReserveInterlibrary method from frontEnd");
 		// sends a UDP message to the Sequencer
 
 		DatagramSocket aSocket = null;
@@ -227,6 +264,52 @@ public class FrontEnd extends corbaOperationsPOA {
 	public String getReplicaResult() {
 		return replicaResult;
 	}
+
+
+	@Override
+	public String setDuration(String username, String bookname, int numDays, String institution) {
+
+		System.out.println("TEST calling SETDURATION method from frontEnd");
+		// sends a UDP message to the Sequencer
+
+		DatagramSocket aSocket = null;
+
+		// Format arguments according to coding convention
+		String sequencerArgs = "setDuration" + argDelim + username + argDelim
+				 + bookname + argDelim + numDays + argDelim + institution;
+		try {
+			aSocket = new DatagramSocket();
+
+			byte[] reqMsg = sequencerArgs.getBytes();// will receive the data
+
+			
+			DatagramPacket request = new DatagramPacket(reqMsg, reqMsg.length,
+					InetAddress.getByName(sequencerAddress), TestUDPPortSequencer);
+
+			// SEND REQUEST TO SEQUENCER
+			aSocket.send(request);
+
+			// start server
+			ReplicaResultListener rep1 = new ReplicaResultListener(this);
+			rep1.start();
+			rep1.join();
+
+		} catch (SocketException e) {
+			System.out.println("Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IO: " + e.getMessage());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (aSocket != null)
+				aSocket.close();
+		}
+
+		return replicaResult;
+	}
+
+
 
 
 }
