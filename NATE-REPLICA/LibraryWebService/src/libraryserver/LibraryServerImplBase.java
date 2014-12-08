@@ -73,7 +73,7 @@ public class LibraryServerImplBase implements LibraryServer {
 				ArrayList<StudentAccount> sa = new ArrayList<StudentAccount>();
 				sa.add(new StudentAccount(firstName, lastName, emailAddress, phoneNumber, newUsername, password, educationalInstitution));
 				accounts.put(initial, sa);
-				message = "Operation createAccount succeed in " + institution + "library";
+				message = "Operation createAccount succeed in " + institution + " library";
 				return message;
 				
 			} else if (accounts.get(initial) != null) {
@@ -87,7 +87,7 @@ public class LibraryServerImplBase implements LibraryServer {
 				accounts.get(initial).add(new StudentAccount(firstName, lastName, emailAddress, phoneNumber, newUsername, password, educationalInstitution));
 				accounts.put(initial, accounts.get(initial));
 				System.out.println(accounts.get(initial).toString());
-				message = "Operation createAccount succeed in " + institution + "library";
+				message = "Operation createAccount succeed in " + institution + " library";
 				return message;
 			} 
 		
@@ -116,6 +116,7 @@ public class LibraryServerImplBase implements LibraryServer {
 			String bookName, String authorName, String institution) {
 		StudentAccount student = null;
 		// Check credentials
+		
 		if (authenticate(username, password) != null)
 				{
 					student = authenticate(username, password);
@@ -125,24 +126,30 @@ public class LibraryServerImplBase implements LibraryServer {
 		return "The credentials entered are incorrect.";
 	}
 
+	public String institutionReserve(String bookName, String authorName, String insitution) {
+		return borrowBook(bookName, authorName);
+	}
+
 	@Override
 	public synchronized String reserveInterLibrary(String username, String password,
 			String book, String author) {
 		
+		String library = "";
 		Book remoteBook = null;
 		DatagramSocket aSocket = null;
-		byte[] buffer = new byte[1000];
-		int[] remoteServerPorts = new int[2];
+		int[] remoteServerPorts = new int[3];
 		
 		if (authenticate(username, password) == null)
 		{
 			return "Operation reserveInterLibrary failed: username or password is wrong";
 		}
 		
-		//Call reserveBook method on local server
-		String message = intitutionReserve(username, password, book, author, institution);
+		String message = "";
 		
-		String result = "Operation reserveInterLibrary failed: No more copies or book not found";
+		//Call reserveBook method on local server
+		message = intitutionReserve(username, password, book, author, institution);
+		
+		String result = "Operation reserveInterLibrary failed: No more copies available or book not found";
 		
 		if (message.contains("succeed")) {
 			return "Operation reserveInterLibrary succeed in "+ institution + " library";
@@ -167,23 +174,20 @@ public class LibraryServerImplBase implements LibraryServer {
 			byte[] reqMsg = serverArgs.getBytes(); // will receive the data
 			InetAddress aHost = InetAddress.getByName("localhost");
 
+			remoteServerPorts[0] = 4441;
+			remoteServerPorts[1] = 4442;
+			remoteServerPorts[2] = 4443;
 			
-			if (this.udpPort == 4441) {
-				remoteServerPorts[0] = 4442;
-				remoteServerPorts[1] = 4443;
-			} else if (this.udpPort == 4442) {
-				remoteServerPorts[0] = 4441;
-				remoteServerPorts[1] = 4443;
-			} else if (this.udpPort == 4443) {
-				remoteServerPorts[0] = 4441;
-				remoteServerPorts[1] = 4442;
-			} else {
-				System.out.println("server not found");
-			}
-
 			// Bind to a port
 			// Call remote server(s)
 			for (int j = 0; j < remoteServerPorts.length; j++) {
+				
+				byte[] buffer = new byte[1000];
+				
+				if (this.udpPort == remoteServerPorts[j]) {
+					continue;
+				}		
+			
 				DatagramPacket request = new DatagramPacket(reqMsg,
 						serverArgs.length(), aHost, remoteServerPorts[j]);
 				aSocket.send(request);
@@ -209,12 +213,12 @@ public class LibraryServerImplBase implements LibraryServer {
 						Loan l = new Loan();
 						l.setBook(remoteBook);
 						s.addLoan(l);
-			
 					}
 					
 					System.out.println(username + ", has remote"
 							+ "ly reserved the book "
 						+ remoteBook.getTitle() + " for 14 days \n");
+					break;
 				}	
 				
 				System.out.println("\nRemote Institution " + (j + 1) 
@@ -222,10 +226,10 @@ public class LibraryServerImplBase implements LibraryServer {
 				
 				System.out.println(rep);
 				
-				if (rep.charAt(0) == 'B') {
-						return "Operation reserveInterLibrary succeed: Book reserve at " + institution;
+				if (rep.contains("succeed")) {
+						return rep;
 				} else {
-					result = "Operation reserveInterLibrary failed: No more copies or book not found";
+					result = "Operation reserveInterLibrary failed: No more copies available or book not found";
 				}
 
 			}
@@ -245,18 +249,15 @@ public class LibraryServerImplBase implements LibraryServer {
 	@Override
 	public synchronized String getNonreturners(String adminUsername, String adminPassword,
 			String educationalInstitution, String numDays) {
-		ArrayList<String> accountsOverdue = new ArrayList<String>();
-		ArrayList<String> localAccountsOverdue = new ArrayList<String>();
+		String accountsOverdue = "";
+		String localAccountsOverdue = "";
 		String rep = " ";
-		//localAccountsOverdue.add(this.institution + " university : \n");
-		//accountsOverdue.add(rep);
 		
-		if (0 != adminUsername.compareToIgnoreCase("admin") || 0 != adminPassword.compareTo("admin")) {
+		if (0 != adminUsername.compareToIgnoreCase("admin") || 0 != adminPassword.compareTo("Admin")) {
 			return "Operation getNonReturners failed: invalid credentials";
 		}
 			DatagramSocket aSocket = null;
 			int serverPort = 0;// = this.UDPPort;
-			byte[] buffer = new byte[1000];
 			int[] remoteServerPorts = new int[3];
 			
 			try {
@@ -266,7 +267,8 @@ public class LibraryServerImplBase implements LibraryServer {
 				// String will contain argumentss to pass to server to determine which
 				// operation to run
 				char serverMethod = '1';// represents getNonReturners method
-				String days = String.valueOf(14);
+				String days = String.valueOf(numDays);
+				int d = Integer.valueOf(days);
 														
 
 				String serverInvArgs = serverMethod + delim
@@ -275,9 +277,8 @@ public class LibraryServerImplBase implements LibraryServer {
 				byte[] reqMsg = serverInvArgs.getBytes();// will receive the data
 				InetAddress aHost = InetAddress.getByName("localhost");
 				// Print the results
-				if (getOverdueAccounts() != null) {
-					localAccountsOverdue.addAll(getOverdueAccounts());	
-					System.out.println("\n" + this.institution + " nonreturners: " + localAccountsOverdue.toString());
+				if (getOverdueAccounts(d) != null) {
+					localAccountsOverdue += getOverdueAccounts(d);	
 				}
 				
 				
@@ -289,10 +290,13 @@ public class LibraryServerImplBase implements LibraryServer {
 				// Call the remote servers
 				for (int j = 0; j < remoteServerPorts.length; j++) {
 					
+					byte[] buffer = new byte[1000];
+					
 					if (this.udpPort == remoteServerPorts[j]) {
-						accountsOverdue.addAll(localAccountsOverdue);
+						accountsOverdue += localAccountsOverdue + "\n";
 						continue;
 					}
+					
 					DatagramPacket request = new DatagramPacket(reqMsg,
 							serverInvArgs.length(), aHost, remoteServerPorts[j]);
 					aSocket.send(request);
@@ -302,14 +306,10 @@ public class LibraryServerImplBase implements LibraryServer {
 
 					rep = new String(reply.getData());
 					
-					System.out.println("\nremote insitution " + (j+1) + ": \n");
-					
 					// created temp String variable, because using rep directly in accountsOverdue Method broke SOAP
 					String temp = rep.replaceAll("\u0000-*", "");
 					
-					System.out.println(temp);
-					
-					accountsOverdue.add(temp);
+					accountsOverdue += temp + "\n";
 				}
 				
 			} catch (SocketException e) {
@@ -321,19 +321,19 @@ public class LibraryServerImplBase implements LibraryServer {
 					aSocket.close();
 			}
 		try {  
-			return localAccountsOverdue.toString() + "\n" + accountsOverdue.toString();
+			return accountsOverdue;
 		} catch (Exception e) {
-				return localAccountsOverdue.toString() + "\n" + accountsOverdue.toString();
+			return accountsOverdue;
 		}	
 	}
 
 	public String setDuration(String username, String bookTitle, int numDays) {
 		
-		StudentAccount s = getStudentAccount("natemacinnes"); 
+		StudentAccount s = getStudentAccount(username); 
 		
 		if (s != null) {
 			if (s.setDuration(bookTitle, numDays)) {
-				return "Operation setDuration succeed in " + institution + "library";
+				return "Operation setDuration succeed in " + institution + " library";
 			} else {
 				return "Operation setDuration failed: loan doesn't exist";
 			}
@@ -353,6 +353,25 @@ public class LibraryServerImplBase implements LibraryServer {
 				return null;
 			}
 		return null;
+	}
+	
+	private String borrowBook(String bookName, String authorName) {
+		switch (catalog.borrow(bookName)) {
+		case 0:
+			new Loan(catalog.getBook(bookName));
+			try {
+			io.write(catalog.bookToString(bookName) 
+					+ " Instances remaining: " + catalog.getBook(bookName).getInstances() + this.institution);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Unable to log actions");
+			}
+			return "Operation reserveInterLibrary succeed: Book reserve at "+ institution;
+		case 1:
+			return "Operation reserveInterLibrary failed: No more copies available";
+		default:
+			return "Operation reserveInterLibrary failed: Book doesn't exists";
+		}
 	}
 	
 	// Borrow book helper method
@@ -382,61 +401,29 @@ public class LibraryServerImplBase implements LibraryServer {
 	}
 	
 	private void fillLibraryTestData() {
-		StudentAccount[] students = new StudentAccount[3]; 
-		Loan[] loans = new Loan[3];
-		Book[] books = new Book[3];
-		
-		createAccount("Nathan", "MacInnes", "natemacinnes@gmail.com", "5555555555", "natemacinnes", "phil13", this.institution);
-		createAccount("Abe", "Lincoln", "example@example.com", "5555555555", "alincoln", "phil13", this.institution);
-		createAccount("George", "Washington", "example@example.com", "5555555555", "gwashington", "phil13", this.institution);
-		
-		students[0] = getStudentAccount("natemacinnes");
-		students[1] = getStudentAccount("alincoln");
-		students[2] = getStudentAccount("gwashington");
-		
+		fillBooksCatalog(true);
+	}
+	
+	private void fillBooksCatalog(boolean debug) {
+		Book books[] = new Book[3];
 		books[0] = new Book("game of thrones 1", "GRR Martin", 1);
 		books[1] = new Book("game of thrones 2", "GRR Martin", 2);
 		books[2] = new Book("game of thrones 3", "GRR Martin", 3);
 		
-		loans[0] = new Loan(books[0]);
-		loans[1] = new Loan(books[1]);
-		loans[2] = new Loan(books[2]);
-		
-		students[0].addLoan(loans[0]);
-		students[1].addLoan(loans[1]);
-		students[2].addLoan(loans[2]);
-		
-		students[0].getLoans().get(0).setDuration(14);
-		students[1].getLoans().get(0).setDuration(14);
-		students[2].getLoans().get(0).setDuration(14);
-		
-		students[0].setFines(1);
-		students[1].setFines(1);
-		students[2].setFines(1);
-		
-		fillBooksCatalog(true);
-		
-	}
-	
-	private void fillBooksCatalog(boolean debug) {
 		if (debug) {
-			for (int i = 0; i < 10; i++) {
-				if (this.institution.equals("mcgill")) {
-					this.catalog.addBook("Book" + i, "Author" + i);
-				}
+			for (int i = 0; i < 3; i++) {
+					this.catalog.addBook(books[i]);
 			}
 		}
 	}	
 	
-	private ArrayList<String> getOverdueAccounts () {
-		ArrayList<String> accountsOverdue = new ArrayList<String>();
-		
-		accountsOverdue.add(this.institution + " university:\n");
+	private String getOverdueAccounts (int numDays) {
+		String accountsOverdue = this.institution + " university:\n";
 		
 		for (Entry<Character, ArrayList<StudentAccount>> entry : accounts.entrySet()) {
 			for (int i = 0; i < entry.getValue().size(); i++) {
-				if (entry.getValue().get(i).getFines() > 0)
-					accountsOverdue.add(entry.getValue().get(i).getFirstName() +" "+ entry.getValue().get(i).getLastName() + " " +
+				if (entry.getValue().get(i).isLoanDuration(numDays))
+					accountsOverdue += (entry.getValue().get(i).getFirstName() + " " + entry.getValue().get(i).getLastName() + " " +
 							entry.getValue().get(i).getPhoneNumber() + "\n");
 			}
 		}
@@ -470,12 +457,12 @@ public class LibraryServerImplBase implements LibraryServer {
 
 				try {
 					aSocket = new DatagramSocket(udpPort);
-					
-					// create socket at agreed port
-					byte[] buffer = new byte[1000];
-					byte[] sendData = null;
 
 					while (true) {
+						
+						// create socket at agreed port
+						byte[] buffer = new byte[1000];
+						byte[] sendData = null;
 						DatagramPacket request = new DatagramPacket(buffer,
 								buffer.length);
 						
@@ -488,8 +475,13 @@ public class LibraryServerImplBase implements LibraryServer {
 						// Server returns the late students account information.
 						if (requestString.charAt(0) == '1')// select getNonReturners method to call
 						{
-							//String split = requestString.substring(2, 4);
-							sendData = getOverdueAccounts().toString().getBytes();
+							
+							String[] reqStrings = requestString.split("\\-");
+							
+							String args1 = reqStrings[1];
+							int numDays = Integer.parseInt(args1);
+							
+							sendData = getOverdueAccounts(numDays).toString().getBytes();
 						
 						} 
 						// '0' represents the reaserveInterLibrary method
@@ -502,7 +494,7 @@ public class LibraryServerImplBase implements LibraryServer {
 							String userName = reqStrings[3];
 							String password = reqStrings[4];
 							
-							String retResult = intitutionReserve(userName, password, bookName, authorName, "McGill");
+							String retResult = institutionReserve(bookName, authorName, institution);
 						
 							sendData = retResult.getBytes();
 						}
@@ -516,6 +508,7 @@ public class LibraryServerImplBase implements LibraryServer {
 								request.getPort());
 						// Send the reply
 						aSocket.send(reply);
+						
 					}
 				} catch (SocketException e) {
 					System.out.println("Socket: " + e.getMessage());

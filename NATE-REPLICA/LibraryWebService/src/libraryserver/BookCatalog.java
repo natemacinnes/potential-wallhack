@@ -25,6 +25,14 @@ class BookCatalog {
 		}
 	}
 	
+	void addBook(Book book) {
+		if (this.catalog.get(book.getTitle()) != null) {
+			this.catalog.get(book.getTitle()).addInstance();
+		} else {
+			this.catalog.put(book.getTitle(), book);
+		}
+	}
+	
 	int borrow(String bookTitle) {
 		if (this.catalog.get(bookTitle)!=null) {
 			System.out.println("Book borrow contains book.");

@@ -106,4 +106,11 @@ public class StudentAccount{
 	public boolean isUsername(String username) {
 		return 0 == username.compareToIgnoreCase(this.username);
 	}
+
+	public boolean isLoanDuration(int numDays) {
+		for(int i = 0; i < this.loans.size(); i++) {
+			return loans.get(i).getDuration() == numDays;
+		}
+		return false;
+	}
 }
