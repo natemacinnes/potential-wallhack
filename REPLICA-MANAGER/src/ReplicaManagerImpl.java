@@ -92,7 +92,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica1"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica1"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica1 to restart");
@@ -109,7 +109,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica2"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica2"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica2 to restart");
@@ -126,7 +126,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica3"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica3"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica3 to restart");
@@ -147,7 +147,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica1"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica1"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica1 to restart");
@@ -164,7 +164,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica2"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica2"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica2 to restart");
@@ -181,7 +181,7 @@ public class ReplicaManagerImpl extends Thread {
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica3"));		                                                 
   							request =
-  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getReplicaPort("replica3"));
+  							 	new DatagramPacket(m,  msg.length(), aHost, networkInfo.getMulticastPort());
   							aSocket.send(request);
   							isRecovering = true;
   							System.out.println("RM sent request to replica3 to restart");

@@ -133,7 +133,7 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
     /**
      * Operation getNonReturners
      */
-    public void getNonReturners(String adminUsername, String adminPassword, String educationalInstitution, int numdays)
+    public String getNonReturners(String adminUsername, String adminPassword, String educationalInstitution, int numdays)
     {
         while(true)
         {
@@ -148,7 +148,8 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
                     _output.write_string(educationalInstitution);
                     _output.write_long(numdays);
                     _input = this._invoke(_output);
-                    return;
+                    String _arg_ret = _input.read_string();
+                    return _arg_ret;
                 }
                 catch(org.omg.CORBA.portable.RemarshalException _exception)
                 {
@@ -172,8 +173,7 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
                 corba.corbaOperationsOperations _self = (corba.corbaOperationsOperations) _so.servant;
                 try
                 {
-                    _self.getNonReturners( adminUsername,  adminPassword,  educationalInstitution,  numdays);
-                    return;
+                    return _self.getNonReturners( adminUsername,  adminPassword,  educationalInstitution,  numdays);
                 }
                 finally
                 {
@@ -228,6 +228,59 @@ public class _corbaOperationsStub extends org.omg.CORBA.portable.ObjectImpl
                 try
                 {
                     return _self.reserveInterLibrary( username,  password,  bookName,  authorName,  institution);
+                }
+                finally
+                {
+                    _servant_postinvoke(_so);
+                }
+            }
+        }
+    }
+
+    /**
+     * Operation setDuration
+     */
+    public String setDuration(String username, String bookname, int numDays, String institution)
+    {
+        while(true)
+        {
+            if (!this._is_local())
+            {
+                org.omg.CORBA.portable.InputStream _input = null;
+                try
+                {
+                    org.omg.CORBA.portable.OutputStream _output = this._request("setDuration",true);
+                    _output.write_string(username);
+                    _output.write_string(bookname);
+                    _output.write_long(numDays);
+                    _output.write_string(institution);
+                    _input = this._invoke(_output);
+                    String _arg_ret = _input.read_string();
+                    return _arg_ret;
+                }
+                catch(org.omg.CORBA.portable.RemarshalException _exception)
+                {
+                    continue;
+                }
+                catch(org.omg.CORBA.portable.ApplicationException _exception)
+                {
+                    String _exception_id = _exception.getId();
+                    throw new org.omg.CORBA.UNKNOWN("Unexpected User Exception: "+ _exception_id);
+                }
+                finally
+                {
+                    this._releaseReply(_input);
+                }
+            }
+            else
+            {
+                org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("setDuration",_opsClass);
+                if (_so == null)
+                   continue;
+                corba.corbaOperationsOperations _self = (corba.corbaOperationsOperations) _so.servant;
+                try
+                {
+                    return _self.setDuration( username,  bookname,  numDays,  institution);
                 }
                 finally
                 {

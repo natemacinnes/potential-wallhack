@@ -15,10 +15,10 @@ public class ReplicaResultListener extends Thread {
 	private FrontEnd fe;
 	public String resultReplica1;
 	public int UDPPortReplicaListener = 2021;
-	public int RMPort = 2022;
-	public String RMAddress = "132.205.95.21";
+	public int RMPort = 7782;
+	public String RMAddress = "132.205.95.190";
 
-	public static int numOfReplicas = 2;// FIXME change back to three
+	public static int numOfReplicas = 3;// FIXME change back to three
 
 	public static HashMap<String, String> networkInfoList = new HashMap<String, String>();
 
@@ -26,9 +26,11 @@ public class ReplicaResultListener extends Thread {
 		this.fe = fe;
 
 		// FIXME add the
-		networkInfoList.put("replica1", "7777-132.205.95.21");
-		networkInfoList.put("replica2", "7778-127.0.0.1");
-		networkInfoList.put("replica3", "7779-127.0.0.1");
+		networkInfoList.put("/132.205.95.189", "replica2");
+		networkInfoList.put("/132.205.95.190", "replica1");
+		networkInfoList.put("/132.205.95.191", "replica3");
+		
+		
 	}
 
 	/*
@@ -40,8 +42,6 @@ public class ReplicaResultListener extends Thread {
 
 		try {
 			aSocket = new DatagramSocket(UDPPortReplicaListener);
-			byte[] buffer = new byte[1000]; // create socket at agreed port
-			String repResultString;
 			// FIXME change the flag for the loop
 			boolean messagesReceived = false;
 			ArrayList<String> repResultSet = new ArrayList<String>();
@@ -53,6 +53,9 @@ public class ReplicaResultListener extends Thread {
 			System.out.println("REPLICA LISTENER RUNNING");
 
 			while (!messagesReceived) {
+				byte[] buffer = new byte[1000]; // create socket at agreed port
+
+				String repResultString = null;
 
 				DatagramPacket request = new DatagramPacket(buffer,
 						buffer.length);
@@ -61,11 +64,11 @@ public class ReplicaResultListener extends Thread {
 				repResultString = new String(request.getData()).replaceAll(
 						"\u0000.*", "");
 				repResultAddress = request.getAddress().toString();
-				
+
 				System.out.println("ADDRESS OF Message #"
 						+ (msgReturnCount + 1) + " " + request.getAddress());
 				System.out.println("CONTENT OF Message #"
-						+ (msgReturnCount + 1) + " " + extractMessage(request));				
+						+ (msgReturnCount + 1) + " " + extractMessage(request));
 
 				// FIXME Decide on the result, based on the mode of the failure.
 
@@ -75,17 +78,19 @@ public class ReplicaResultListener extends Thread {
 					repAddressSet.add(repResultAddress);
 
 					msgReturnCount++;
-					if (msgReturnCount == numOfReplicas ) {
+					if (msgReturnCount == numOfReplicas) {
 						decide(repResultSet, repAddressSet);
 						messagesReceived = true;// flag to exit the loop
+						repResultSet = null;
+						repResultString = null;
 
 					}
 
 				}
 
 			}
-			repAddressSet.clear();
-			repAddressSet.clear();
+			// repAddressSet.clear();
+			// repAddressSet.clear();
 
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -97,16 +102,16 @@ public class ReplicaResultListener extends Thread {
 		}
 
 	}
-	private String extractMessage(DatagramPacket request)
-	{
-			//get only the non-empty bit out of the byte array
-			byte [] byteReceive = new byte[request.getLength()];
-			for(int i = 0; i < request.getLength(); i++){
-				byteReceive[i] = request.getData()[i];
-			}
-			
-			//convert the byte into a string
-			return new String(byteReceive);
+
+	private String extractMessage(DatagramPacket request) {
+		// get only the non-empty bit out of the byte array
+		byte[] byteReceive = new byte[request.getLength()];
+		for (int i = 0; i < request.getLength(); i++) {
+			byteReceive[i] = request.getData()[i];
+		}
+
+		// convert the byte into a string
+		return new String(byteReceive);
 	}
 
 	public void decide(ArrayList<String> repResultSet,
@@ -114,23 +119,29 @@ public class ReplicaResultListener extends Thread {
 		// FIXME some logic to decide
 		String failedReplicaNum = null;
 
-		String[] resultSet = repResultSet.toArray(new String[repResultSet.size()]);
-		String[] addressSet = repAddressSet.toArray(new String[repAddressSet.size()]);
+		String[] resultSet = repResultSet.toArray(new String[repResultSet
+				.size()]);
+		String[] addressSet = repAddressSet.toArray(new String[repAddressSet
+				.size()]);
 		
+		System.out.println("FE DEBUG: 3 IP Addresses " + addressSet[0] + " " + addressSet[1]
+				
+				+ " " + addressSet[2]);
 
 		// Check to make sure replica addresses are unique
 		if ((!addressSet[0].equals(addressSet[1]))
-		// && (!addressSet[1].equals(addressSet[2]))
-		// && (!addressSet[2].equals(addressSet[0]))
-		) {
+				&& (!addressSet[1].equals(addressSet[2]))
+				&& (!addressSet[2].equals(addressSet[0]))) {
 			// Check if the results are the same.
 			if ((resultSet[0].equals(resultSet[1]))
-			// && (resultSet[1].equals(resultSet[2]))
-			// && (resultSet[2].equals(resultSet[0]))
+					&& (resultSet[1].equals(resultSet[2]))
+					&& (resultSet[2].equals(resultSet[0]))
 
 			) {
 
-				// IDEAL CASE, no software failure
+				System.out
+						.println("\n\nDEBUG: FE LISTENER: IDEAL CASE, no software failure");
+
 				// send a result to front end to return to client
 				System.out.println("Correct result to be returned to client: "
 						+ resultSet[0]);
@@ -139,47 +150,74 @@ public class ReplicaResultListener extends Thread {
 			}
 			// case where there is one value that is different
 
-			// FIXME change back to bottom code afterwards
-			else {
+			else if ((resultSet[0].equals(resultSet[1]))
+					|| (resultSet[1].equals(resultSet[2]))
+					|| (resultSet[2].equals(resultSet[0]))) {
+				// send the replica manager a notice that there is a software
+				// failure on a specific replica
+
 				System.out
-						.println("DEBUG: FRONT END - SEND SW FAILURE Notice to Replica");
-				// Replica 1 software failure
-				// Send result to the replica manager
-				failedReplicaNum = "Replica 1";
-				notifyRMAboutRepFailure(failedReplicaNum);
-				returnResult(resultSet[0]);
+						.println("\n\nDEBUG: FRONT END - SEND SW FAILURE for one replica");
+				// Replica 1 software failure if
+				if ((resultSet[2].equals(resultSet[1]))) {
+					// Send result to the replica manager
+					
+					int replCounter = 0;
+					String failedReplicaAddress = addressSet[replCounter];
+					
+					System.out.println("FE DEBUG: R1 Address" + failedReplicaAddress);
+					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
+					System.out.println("FE DEBUG: R1 number" + failedReplicaNum);
+
+					
+					notifyRMAboutRepFailure(failedReplicaNum);
+					returnResult(resultSet[2]);
+
+				} // Replica 2 software failure else if
+				else if ((resultSet[0].equals(resultSet[2]))) {
+					int replCounter = 1;
+					
+					String failedReplicaAddress = addressSet[replCounter];
+					System.out.println("FE DEBUG: R2 Address" + failedReplicaAddress);
+
+					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
+					System.out.println("FE DEBUG: R2 number" + failedReplicaNum);
+		
+					notifyRMAboutRepFailure(failedReplicaNum);
+					returnResult(resultSet[0]);
+				}
+
+				// Replica 3 software failure else
+				else if ((resultSet[0].equals(resultSet[1]))) {
+
+					int replCounter = 2;
+					String failedReplicaAddress = addressSet[replCounter];
+					System.out.println("FE DEBUG: R3 Address" + failedReplicaAddress);
+
+					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
+					System.out.println("FE DEBUG: R3 number" + failedReplicaNum);
+
+					notifyRMAboutRepFailure(failedReplicaNum);
+					returnResult(resultSet[0]);
+				}
 
 			}
-			/*
-			 * else if ((resultSet[0].equals(resultSet[1])) ||
-			 * (resultSet[1].equals(resultSet[2])) ||
-			 * (resultSet[2].equals(resultSet[0]))) { // send the replica
-			 * manager a notice that there is a software // failure on a
-			 * specific replica
-			 * 
-			 * System.out
-			 * .println("DEBUG: FRONT END - SEND SW FAILURE Notice to Replica");
-			 * // Replica 1 software failure if
-			 * ((resultSet[2].equals(resultSet[1]))) { // Send result to the
-			 * replica manager failedReplicaNum = "Replica 1";
-			 * notifyRMAboutRepFailure(failedReplicaNum);
-			 * returnResult(resultSet[2]);
-			 * 
-			 * } // Replica 2 software failure else if
-			 * ((resultSet[0].equals(resultSet[2]))) { failedReplicaNum =
-			 * "Replica 2"; notifyRMAboutRepFailure(failedReplicaNum);
-			 * returnResult(resultSet[0]); } // Replica 3 software failure else
-			 * if ((resultSet[0].equals(resultSet[1]))) { failedReplicaNum =
-			 * "Replica 3"; notifyRMAboutRepFailure(failedReplicaNum);
-			 * returnResult(resultSet[0]); }
-			 * 
-			 * }
-			 */
 
+			// FIXME change back to bottom code afterwards
+			else {
+
+				/*
+				 * // Replica 1 software failure // Send result to the replica
+				 * manager failedReplicaNum = "Replica 1";
+				 * notifyRMAboutRepFailure(failedReplicaNum);
+				 * returnResult(resultSet[0]);
+				 */
+
+				System.out.println("\n\nDEBUG FE: more than 2 sw error");
+
+			}
 		}
 
-		// FIXME copy the mapping from Paterson's code
-		// NOTE: to send if there's an error.
 	}
 
 	private void notifyRMAboutRepFailure(String failedReplicaNum) {
@@ -212,7 +250,7 @@ public class ReplicaResultListener extends Thread {
 
 	private void returnResult(String result) {
 		System.out
-				.println("DEBUG: FRONT END - SENDING CORRECT RESULT TO CLIENT");
+				.println("\n\nDEBUG: FRONT END - SENDING CORRECT RESULT TO CLIENT");
 		fe.sendResult(result);
 	}
 
