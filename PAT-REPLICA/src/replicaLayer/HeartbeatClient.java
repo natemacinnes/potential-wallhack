@@ -41,6 +41,7 @@ public class HeartbeatClient extends Thread {
  				aSocket = new DatagramSocket(); 
  				String msg = owner +  " heartbeat";
  				byte [] m = msg.getBytes();
+ 				int deb = 0;
  				
  				for(String replicaName : replicaInfo.getReplicaName())
  				{

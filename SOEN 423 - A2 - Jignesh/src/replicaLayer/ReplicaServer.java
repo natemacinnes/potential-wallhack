@@ -75,12 +75,6 @@ public class ReplicaServer extends Thread{
     	//DatagramSocket aSocket = null;
     	MulticastSocket aSocket = null;
     	
-    	if(supportHighAvailability)
-    	{
-        	listener.start();
-        	client.start();
-    	}
-    	
 		try{
 			// create socket at agreed port
 	    	//aSocket = new DatagramSocket(replicaPort);
@@ -209,7 +203,7 @@ public class ReplicaServer extends Thread{
 		if(isStartSFOperation)
 		{
 			supportHighAvailability = false;
-			return startServers();
+			return startServers(false);
 		}
 		else if(isRestartSFOperation)
 		{
@@ -219,7 +213,9 @@ public class ReplicaServer extends Thread{
 		else if(isStartHAOperation)
 		{
 			supportHighAvailability = true;
-			return startServers();
+        	listener.start();
+        	client.start();
+			return startServers(false);
 		}
 		else if(isRestartHAOperation)
 		{
@@ -281,7 +277,7 @@ public class ReplicaServer extends Thread{
 		}
 	}
 	
-	private String startServers()
+	private String startServers(boolean isRestart)
 	{
 		//TODO: modify LibraryServerImpl type
 		
@@ -331,20 +327,27 @@ public class ReplicaServer extends Thread{
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 
-		//Delete existing log file
-		File file  = new File(logFileName);
-		file.delete();
+		if(!isRestart)
+		{
+			//Delete existing log file
+			File file  = new File(logFileName);
+			file.delete();
+		}
 		
 		return "Replica " + replicaName + " started its servers";
 	}
 	
 	private String restartServers()
 	{
-		startServers();
+		startServers(true);
 		messageSequenceNumber = 1;
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 		updateServers();
+		listener = new HeartbeatListener(replicaName,replicaPort);
+		client = new HeartbeatClient(replicaName);
+    	listener.start();
+    	client.start();
 		numOperationBeforeCrash = 100;
 		return "Replica " + replicaName + " restarted its servers";
 	}

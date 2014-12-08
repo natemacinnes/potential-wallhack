@@ -75,11 +75,6 @@ public class ReplicaServer extends Thread{
     	//DatagramSocket aSocket = null;
     	MulticastSocket aSocket = null;
     	
-    	if(supportHighAvailability)
-    	{
-        	listener.start();
-        	client.start();
-    	}
     	
 		try{
 			// create socket at agreed port
@@ -157,7 +152,7 @@ public class ReplicaServer extends Thread{
   	  						    	if(supportHighAvailability)
   	  						    	{
   	  						    		int seqNum = messageSequenceNumber - 1;
-  	  						    		result += seqNum + "." + result; 
+  	  						    		result = seqNum + "." + result; 
   	  						    	}
   	  	  						    //Send result to front end
   	  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
@@ -229,6 +224,8 @@ public class ReplicaServer extends Thread{
 		else if(isStartHAOperation)
 		{
 			supportHighAvailability = true;
+        	listener.start();
+        	client.start();
 			return startServers(false);
 		}
 		else if(isRestartHAOperation)
@@ -321,6 +318,10 @@ public class ReplicaServer extends Thread{
 		deliveryQueue.clear();
 		updateServers();
 		numOperationBeforeCrash = 3;
+		listener = new HeartbeatListener(replicaName,replicaPort);
+		client = new HeartbeatClient(replicaName);
+    	listener.start();
+    	client.start();
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	
