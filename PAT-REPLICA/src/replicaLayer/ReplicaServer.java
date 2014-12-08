@@ -151,12 +151,17 @@ public class ReplicaServer extends Thread{
   	  						    recordOperation(operationReceived);
   	  						    messageSequenceNumber++;
   	  						    
-  	  						    //Send result to front end
-  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
-  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
-  	  				    			frontEndIp, replicaInfo.getFrontEndPort());
-  	  				    		aSocket.send(reply);
-  	  				    		System.out.println("result was sent to " + replicaInfo.getFrontEndIp() + " on port " + replicaInfo.getFrontEndPort());
+  	  						    //If it is replica1 and numOperationBeforeCrash, simlulate process
+  	  						    //crash by not sending any responses
+  	  						    if(numOperationBeforeCrash != 0 || !replicaName.equals("replica1"))
+  	  						    {
+  	  	  						    //Send result to front end
+  	  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
+  	  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
+  	  	  				    			frontEndIp, replicaInfo.getFrontEndPort());
+  	  	  				    		aSocket.send(reply);
+  	  	  				    		System.out.println("result was sent to " + replicaInfo.getFrontEndIp() + " on port " + replicaInfo.getFrontEndPort());
+  	  						    }
   	  						}
   	  					}
   					}
@@ -245,9 +250,10 @@ public class ReplicaServer extends Thread{
 		if(numOperationBeforeCrash == 0 && supportHighAvailability && replicaName.equals("replica1"))
 		{
 			stopHeartbeatClient();
+			return "";
 		}
-		
-		if(numOperationBeforeCrash == 0 && !supportHighAvailability && replicaName.equals("replica1"))
+		//replica1 is going to be the one that sends an incorrect result for the purpose of the demo
+		else if(numOperationBeforeCrash == 0 && !supportHighAvailability && replicaName.equals("replica1"))
 		{
 			return "wrong result";
 		}
