@@ -152,7 +152,7 @@ public class ReplicaServer extends Thread{
   	  						    
   	  						    //If it is replica1 and numOperationBeforeCrash, simlulate process
   	  						    //crash by not sending any responses
-  	  						    if(numOperationBeforeCrash != 0 || !replicaName.equals("replica1"))
+  	  						    if(numOperationBeforeCrash != 0 || !replicaName.equals("replica1") || !supportHighAvailability)
   	  						    {
   	  						    	if(supportHighAvailability)
   	  						    	{
@@ -219,7 +219,7 @@ public class ReplicaServer extends Thread{
 		if(isStartSFOperation)
 		{
 			supportHighAvailability = false;
-			return startServers();
+			return startServers(false);
 		}
 		else if(isRestartSFOperation)
 		{
@@ -229,7 +229,7 @@ public class ReplicaServer extends Thread{
 		else if(isStartHAOperation)
 		{
 			supportHighAvailability = true;
-			return startServers();
+			return startServers(false);
 		}
 		else if(isRestartHAOperation)
 		{
@@ -292,32 +292,35 @@ public class ReplicaServer extends Thread{
 		}
 	}
 	
-	private String startServers()
+	private String startServers(boolean isRestart)
 	{
 		//TODO: modify LibraryServerImpl type
 		serversMap.put("concordia", new LibraryServerImpl("concordia"));
 		serversMap.put("mcgill", new LibraryServerImpl("mcgill"));
 		serversMap.put("uqam", new LibraryServerImpl("uqam"));
 		messageSequenceNumber = 1;
-		numOperationBeforeCrash = 100;
+		numOperationBeforeCrash = 3;
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 
-		//Delete existing log file
-		File file  = new File(logFileName);
-		file.delete();
+		if(!isRestart)
+		{
+			//Delete existing log file
+			File file  = new File(logFileName);
+			file.delete();
+		}
 		
 		return "Replica " + replicaName + " started its servers";
 	}
 	
 	private String restartServers()
 	{
-		startServers();
+		startServers(true);
 		messageSequenceNumber = 1;
 		holdbackQueue.clear();
 		deliveryQueue.clear();
 		updateServers();
-		numOperationBeforeCrash = 100;
+		numOperationBeforeCrash = 3;
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	
@@ -597,7 +600,7 @@ public class ReplicaServer extends Thread{
 			
 			while((operation = reader.readLine()) != null)
 			{
-				numOperationBeforeCrash = 100; //reset to 3 each time to be sure that all the operation are performed
+				numOperationBeforeCrash = 3; //reset to 3 each time to be sure that all the operation are performed
 				performLibraryOperation(operation);
 				deliveryQueue.put(messageSequenceNumber, operation);
 				messageSequenceNumber++;
