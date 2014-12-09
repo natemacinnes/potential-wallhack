@@ -266,7 +266,7 @@ public class ReplicaServer extends Thread{
 		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
 		boolean isReserveBookOperation = operation.contains("reserveBook");
 		
-		if(isFirstOp)
+		if(isFirstOp && supportHighAvailability)
 		{
 			isFirstOp = false;
 	    	listener1.start();
@@ -345,8 +345,12 @@ public class ReplicaServer extends Thread{
 		deliveryQueue.clear();
 		updateServers();
 		numOperationBeforeCrash = 3;
-		client = new HeartbeatClient(replicaName);
-		client.start();
+		
+		if(supportHighAvailability)
+		{
+			client = new HeartbeatClient(replicaName);
+			client.start();
+		}
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	
