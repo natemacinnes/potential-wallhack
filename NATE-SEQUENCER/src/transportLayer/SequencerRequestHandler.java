@@ -47,7 +47,7 @@ public class SequencerRequestHandler extends Thread {
 			// String[] parts = message.split(".");
 			String result = message;
 			//send result back to calling server
-			System.out.println("Broadcasting message...");
+			System.out.println("Broadcasting message: " + message);
 			
 			sequencer.receiveMessage(result);
 			
@@ -59,6 +59,7 @@ public class SequencerRequestHandler extends Thread {
 	public void receiveErrorMessage(String message) {
 		String msg[] = message.split("\\.");
 		int seqNumber = Integer.parseInt(msg[1]);
+		System.out.println("Resending missing message: " + seqNumber);
 		sequencer.resendMessage(seqNumber);
 	}
 

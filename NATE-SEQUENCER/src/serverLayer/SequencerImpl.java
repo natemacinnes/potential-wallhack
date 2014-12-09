@@ -62,7 +62,7 @@ public class SequencerImpl implements SequencerInterface {
 	
 	@Override
 	public void startServers() {
-		System.out.println("Starting servers...");
+		System.out.println("Starting sequencer servers...");
 		FEserver = new UDPSequencerServer(this, frontEndPort);
 		FEserver.start();
 		Rserver = new UDPSequencerServer(this, replicaPort);
