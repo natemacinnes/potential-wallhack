@@ -9,7 +9,8 @@ public class ReplicaInformation {
 	private int sequencerPort;
 	private int frontEndPort;
 	private int replicaManagerPort;
-	private int heartbeatListenerPort;
+	private int heartbeatListener1ReplicaPort;
+	private int heartbeatListener2ReplicaPort;
 	private int multicastPort;
 	private String sequencerIp;
 	private String frontEndIp;
@@ -27,7 +28,8 @@ public class ReplicaInformation {
 		//sequencerPort = 7780;
 		frontEndPort = 2021;
 		replicaManagerPort = 7782;
-		heartbeatListenerPort = 7783;
+		heartbeatListener1ReplicaPort = 7783;
+		heartbeatListener2ReplicaPort = 7784;
 		//sequencerIp = "132.205.95.191"; //should be the same as replica3 ip
 		frontEndIp = "132.205.95.189"; //should be the same as replica2 ip
 		replicaManagerIp = "132.205.95.190"; //should be the same as replica1 ip
@@ -95,10 +97,6 @@ public class ReplicaInformation {
 		return replicaManagerIp;
 	}
 
-	public int getHeartbeatListenerPort() {
-		return heartbeatListenerPort;
-	}
-
 	public String getHeartbeatListenerIp() {
 		return heartbeatListenerIp;
 	}
@@ -117,6 +115,24 @@ public class ReplicaInformation {
 
 	public void setMulticastAddr(String multicastAddr) {
 		this.multicastAddr = multicastAddr;
+	}
+
+	public int getHeartbeatListener1ReplicaPort() {
+		return heartbeatListener1ReplicaPort;
+	}
+
+	public void setHeartbeatListener1ReplicaPort(
+			int heartbeatListener1ReplicaPort) {
+		this.heartbeatListener1ReplicaPort = heartbeatListener1ReplicaPort;
+	}
+
+	public int getHeartbeatListener2ReplicaPort() {
+		return heartbeatListener2ReplicaPort;
+	}
+
+	public void setHeartbeatListener2ReplicaPort(
+			int heartbeatListener2ReplicaPort) {
+		this.heartbeatListener2ReplicaPort = heartbeatListener2ReplicaPort;
 	}
 	
 

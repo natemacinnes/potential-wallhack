@@ -41,7 +41,6 @@ public class LibraryServerImplBase implements LibraryServer {
 		this.institution = institution;
 		this.udpHost = udpHost;
 		this.udpPort = udpPort;
-		
 		// creates three accounts on each server
 		// puts three books in the mcgill library
 		fillLibraryTestData();
