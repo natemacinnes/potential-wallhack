@@ -79,7 +79,11 @@ public class ReplicaManagerImpl extends Thread {
   				aSocket.receive(request);
   				
   				String message = extractMessage(request);
-  				System.out.println(message);
+  				
+  				if(!isRecovering)
+  				{
+  					System.out.println(message);
+  				}
   				
   				if(message.equals("Replica replica1 started its servers"))
   				{

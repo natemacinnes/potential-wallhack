@@ -70,7 +70,6 @@ public class HeartbeatClient extends Thread {
  	 	 				DatagramPacket request =
  	 	 	 				 	new DatagramPacket(m,  msg.length(), aHost, networkInfoList.get(replicaName));
  	 	 				aSocket.send(request);
- 	 	 				System.out.println("send heartbeat to " + replicaName);
  					}
  				}
     		}
