@@ -12,6 +12,11 @@ import corba.FrontEnd;
 
 public class ReplicaResultListener extends Thread {
 
+	//High availability flag
+	public static boolean highAvailability = true;
+	public static int lastSequenceNumber = 0;
+
+	
 	private FrontEnd fe;
 	public String resultReplica1;
 	public int UDPPortReplicaListener = 2021;
@@ -29,8 +34,7 @@ public class ReplicaResultListener extends Thread {
 		networkInfoList.put("/132.205.95.189", "replica2");
 		networkInfoList.put("/132.205.95.190", "replica1");
 		networkInfoList.put("/132.205.95.191", "replica3");
-		
-		
+
 	}
 
 	/*
@@ -74,16 +78,43 @@ public class ReplicaResultListener extends Thread {
 
 				if (repResultString != null) {
 
-					repResultSet.add(repResultString);
 					repAddressSet.add(repResultAddress);
 
-					msgReturnCount++;
-					if (msgReturnCount == numOfReplicas) {
-						decide(repResultSet, repAddressSet);
-						messagesReceived = true;// flag to exit the loop
-						repResultSet = null;
-						repResultString = null;
+					if (highAvailability == true) {
 
+						String[] highAvailRequest = repResultString.split("\\.");
+						
+						int sequenceNumber = Integer.parseInt(highAvailRequest[0]);
+						String req = highAvailRequest[1];
+						
+						//Check if the sequence number is of a message
+						//that already arrived
+						if(sequenceNumber>lastSequenceNumber){
+							repResultSet.add(req);
+
+							System.out.println("FE DEBUG: High Availability message and sequence number " 
+									+ sequenceNumber  + " " + req);
+							//decide(repResultSet, repAddressSet);
+							returnResult(req);
+							messagesReceived = true;
+							
+						}
+						//discard message otherwise
+						else{
+							System.out.println("FE DEBUG: (discard) High availability message arrived arlready");
+						}
+						
+					} else {
+						repResultSet.add(repResultString);
+
+						msgReturnCount++;
+						if (msgReturnCount == numOfReplicas) {
+							decide(repResultSet, repAddressSet);
+							messagesReceived = true;// flag to exit the loop
+							repResultSet = null;
+							repResultString = null;
+
+						}
 					}
 
 				}
@@ -123,9 +154,10 @@ public class ReplicaResultListener extends Thread {
 				.size()]);
 		String[] addressSet = repAddressSet.toArray(new String[repAddressSet
 				.size()]);
-		
-		System.out.println("FE DEBUG: 3 IP Addresses " + addressSet[0] + " " + addressSet[1]
-				
+
+		System.out.println("FE DEBUG: 3 IP Addresses " + addressSet[0] + " "
+				+ addressSet[1]
+
 				+ " " + addressSet[2]);
 
 		// Check to make sure replica addresses are unique
@@ -161,28 +193,33 @@ public class ReplicaResultListener extends Thread {
 				// Replica 1 software failure if
 				if ((resultSet[2].equals(resultSet[1]))) {
 					// Send result to the replica manager
-					
+
 					int replCounter = 0;
 					String failedReplicaAddress = addressSet[replCounter];
-					
-					System.out.println("FE DEBUG: R1 Address" + failedReplicaAddress);
-					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
-					System.out.println("FE DEBUG: R1 number" + failedReplicaNum);
 
-					
+					System.out.println("FE DEBUG: R1 Address"
+							+ failedReplicaAddress);
+					failedReplicaNum = networkInfoList
+							.get(failedReplicaAddress);
+					System.out
+							.println("FE DEBUG: R1 number" + failedReplicaNum);
+
 					notifyRMAboutRepFailure(failedReplicaNum);
 					returnResult(resultSet[2]);
 
 				} // Replica 2 software failure else if
 				else if ((resultSet[0].equals(resultSet[2]))) {
 					int replCounter = 1;
-					
-					String failedReplicaAddress = addressSet[replCounter];
-					System.out.println("FE DEBUG: R2 Address" + failedReplicaAddress);
 
-					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
-					System.out.println("FE DEBUG: R2 number" + failedReplicaNum);
-		
+					String failedReplicaAddress = addressSet[replCounter];
+					System.out.println("FE DEBUG: R2 Address"
+							+ failedReplicaAddress);
+
+					failedReplicaNum = networkInfoList
+							.get(failedReplicaAddress);
+					System.out
+							.println("FE DEBUG: R2 number" + failedReplicaNum);
+
 					notifyRMAboutRepFailure(failedReplicaNum);
 					returnResult(resultSet[0]);
 				}
@@ -192,10 +229,13 @@ public class ReplicaResultListener extends Thread {
 
 					int replCounter = 2;
 					String failedReplicaAddress = addressSet[replCounter];
-					System.out.println("FE DEBUG: R3 Address" + failedReplicaAddress);
+					System.out.println("FE DEBUG: R3 Address"
+							+ failedReplicaAddress);
 
-					failedReplicaNum = networkInfoList.get(failedReplicaAddress);
-					System.out.println("FE DEBUG: R3 number" + failedReplicaNum);
+					failedReplicaNum = networkInfoList
+							.get(failedReplicaAddress);
+					System.out
+							.println("FE DEBUG: R3 number" + failedReplicaNum);
 
 					notifyRMAboutRepFailure(failedReplicaNum);
 					returnResult(resultSet[0]);

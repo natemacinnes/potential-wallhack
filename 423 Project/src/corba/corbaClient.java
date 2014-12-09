@@ -34,7 +34,7 @@ public class corbaClient {
 		int choice = 0;
 
 		while (true) {
-			System.out.println("Welcome. Your choices are: ");
+			System.out.println("\n\nWelcome. Your choices are: ");
 			System.out
 					.println("Choice 1: Create 2 Concordia, McGill, and UQAM Students");
 			System.out
@@ -73,6 +73,42 @@ public class corbaClient {
 						"concordia");
 				System.out.println(reply);
 			}
+			
+			
+			/*
+			 * 
+			 * CreateAccount
+String firstname;
+System.out.print("Enter your first name: ");
+firstname = user_input.next( );
+
+String lastname;
+System.out.print("Enter your lastname: ");
+lastname = user_input.next( );
+
+String email;
+System.out.print("Enter your email: ");
+email = user_input.next( );
+
+String phonenumber;
+System.out.print("Enter your phonenumber: ");
+phonenumber = user_input.next( );
+
+String username;
+System.out.print("Enter your username: ");
+username = user_input.next( );
+
+String password;
+System.out.print("Enter your password: ");
+password = user_input.next( );
+
+String institution;
+System.out.print("Enter your institution: ");
+institution = user_input.next( );
+
+			 * */
+			
+			System.out.println();
 
 		}
 	}

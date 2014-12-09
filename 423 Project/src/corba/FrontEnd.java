@@ -34,7 +34,6 @@ public class FrontEnd extends corbaOperationsPOA {
 	public static String replicaResult;
 	public String sequencerAddress = "132.205.95.191"; 
 
-
 	@Override
 	public String createAccount(String firstName, String lastName,
 			String emailAddress, String phoneNumber, String userName,
