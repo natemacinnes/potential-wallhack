@@ -144,12 +144,22 @@ public class ReplicaServer extends Thread{
   	  						    recordOperation(operationReceived);
   	  						    messageSequenceNumber++;
   	  						    
-  	  						    //Send result to front end
-  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
-  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
-  	  				    			frontEndIp, replicaInfo.getFrontEndPort());
-  	  				    		aSocket.send(reply);
-  	  				    		System.out.println("result was sent to " + replicaInfo.getFrontEndIp() + " on port " + replicaInfo.getFrontEndPort());
+  	  						    //If it is replica1 and numOperationBeforeCrash, simlulate process
+  	  						    //crash by not sending any responses
+  	  						    if(numOperationBeforeCrash != 0 || !replicaName.equals("replica1") || !supportHighAvailability)
+  	  						    {
+  	  						    	if(supportHighAvailability)
+  	  						    	{
+  	  						    		int seqNum = messageSequenceNumber - 1;
+  	  						    		result = seqNum + "." + result; 
+  	  						    	}
+  	  	  						    //Send result to front end
+  	  	  						    InetAddress frontEndIp = InetAddress.getByName(replicaInfo.getFrontEndIp());
+  	  	  				    		DatagramPacket reply = new DatagramPacket(result.getBytes(), result.length(), 
+  	  	  				    			frontEndIp, replicaInfo.getFrontEndPort());
+  	  	  				    		aSocket.send(reply);
+  	  	  				    		System.out.println("result was sent to " + replicaInfo.getFrontEndIp() + " on port " + replicaInfo.getFrontEndPort());
+  	  						    }
   	  						}
   	  					}
   					}
