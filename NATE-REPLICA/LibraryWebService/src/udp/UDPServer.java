@@ -25,9 +25,10 @@ public class UDPServer implements Runnable{
 		
 		try {
 			aSocket = new DatagramSocket(udpPort);
-			// create socket at agreed port
-			byte[] buffer = new byte[1000];
+			
 			while (true) {
+				// create socket at agreed port
+				byte[] buffer = new byte[1000];
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				// get request
 				aSocket.receive(request);
