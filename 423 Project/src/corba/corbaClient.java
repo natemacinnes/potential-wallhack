@@ -32,6 +32,7 @@ public class corbaClient {
 
 		Scanner sc = new Scanner(System.in);
 		int choice = 0;
+		String input = null;
 
 		while (true) {
 			System.out.println("\n\nWelcome. Your choices are: ");
@@ -44,34 +45,39 @@ public class corbaClient {
 							"\nChoice 4: getNonReturners for Concordia and McGill");
 			System.out.println("Choice 5: Reserve Interlibrary at Concordia");
 			choice = sc.nextInt();
+			
 
 			if (choice == 1) {
 				String testReply = frontEnd.createAccount("Jignesh", "Patel",
 						"jigneshp23@gmail;com", "514-652-4729", "jig_pa",
 						"password1", "concordia");
 
-				System.out.println(testReply);
+				System.out.println("Result: " + testReply);
 
 			} else if (choice == 2) {
 				String reply = frontEnd.reserveBook("jig_pa", "password1",
 						"game of thrones 1", "GRR Martin", "concordia");
-				System.out.println(reply);
+				System.out.println("Result: " + reply);
 
 			} else if (choice == 3) {
 				
+				//String username = sc.next();
+				//String bookName = sc.next();
+				//String numdays //FIXME parse the string
+				
 				String reply = frontEnd.setDuration( "jig_pa", "game of thrones 1", 14, "concordia");
-				System.out.println(reply);
+				System.out.println("Result: " + reply);
 			} else if (choice ==4) {
 
 				String reply = frontEnd.getNonReturners("Admin", "Admin", "concordia", 14);
-				System.out.println(reply);
+				System.out.println("Result: " + reply);
 				
 			} else if (choice == 5) {
 
 				String reply = frontEnd.reserveInterLibrary("jig_pa",
 						"password1", "game of thrones 1", "GRR Martin",
 						"concordia");
-				System.out.println(reply);
+				System.out.println("Result: " + reply);
 			}
 			
 			

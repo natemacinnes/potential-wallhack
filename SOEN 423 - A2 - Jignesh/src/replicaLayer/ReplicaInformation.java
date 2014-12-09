@@ -16,7 +16,8 @@ public class ReplicaInformation {
 	private String replicaManagerIp;
 	private String heartbeatListenerIp;
 	private String multicastAddr;
-	
+	private int heartbeatListener1ReplicaPort;
+	private int heartbeatListener2ReplicaPort;
 	
 	
 	public ReplicaInformation(){
@@ -119,5 +120,22 @@ public class ReplicaInformation {
 		this.multicastAddr = multicastAddr;
 	}
 	
+	public int getHeartbeatListener1ReplicaPort() {
+		return heartbeatListener1ReplicaPort;
+	}
+
+	public void setHeartbeatListener1ReplicaPort(
+			int heartbeatListener1ReplicaPort) {
+		this.heartbeatListener1ReplicaPort = heartbeatListener1ReplicaPort;
+	}
+	
+	public int getHeartbeatListener2ReplicaPort() {
+		return heartbeatListener2ReplicaPort;
+	}
+
+	public void setHeartbeatListener2ReplicaPort(
+			int heartbeatListener2ReplicaPort) {
+		this.heartbeatListener2ReplicaPort = heartbeatListener2ReplicaPort;
+	}
 
 }
