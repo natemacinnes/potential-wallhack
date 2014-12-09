@@ -16,6 +16,7 @@ public class ReplicaManagerImpl extends Thread {
 	private int numSFReplica3;
 	private boolean supportSoftwareFailure;
 	private boolean isRecovering;
+	private int numProcessStarted;
 	private HashMap<String,Set<String>> crashNotification;
 	
 	public ReplicaManagerImpl(boolean supportSoftwareFailure)
@@ -23,6 +24,7 @@ public class ReplicaManagerImpl extends Thread {
 	    numSFReplica1 = 0;
 		numSFReplica2 = 0;
 		numSFReplica3 = 0;
+		numProcessStarted = 0;
 	    this.supportSoftwareFailure = supportSoftwareFailure;
 	    isRecovering = false;
 	    crashNotification = new HashMap<String,Set<String>>();
@@ -79,8 +81,23 @@ public class ReplicaManagerImpl extends Thread {
   				String message = extractMessage(request);
   				System.out.println(message);
   				
+  				if(message.equals("Replica replica1 started its servers"))
+  				{
+  					numProcessStarted++;
+  				}
+ 				if(message.equals("Replica replica2 started its servers"))
+  				{
+  					numProcessStarted++;
+  				}
+ 				if(message.equals("Replica replica3 started its servers"))
+  				{
+  					numProcessStarted++;
+  				}
+ 				
+  				
   				if(supportSoftwareFailure)
   				{
+  					System.out.println(message);
   					if(message.equals("replica1 send wrong result") && !isRecovering)
   					{
   						numSFReplica1++;
@@ -136,13 +153,16 @@ public class ReplicaManagerImpl extends Thread {
   				//support high availability
   				else if(!supportSoftwareFailure)
   				{
-  					if(message.equals("suspect replica1 crashed") && !isRecovering)
+  					if(message.contains("suspect replica1 crashed") && !isRecovering && numProcessStarted==3)
   					{
+  						System.out.println(message);
   						crashNotification.get("replica1").add(request.getAddress().toString());
   						
   						if(crashNotification.get("replica1").size() == 2)
   						{
   							crashNotification.get("replica1").clear();
+  							crashNotification.get("replica2").clear();
+  							crashNotification.get("replica3").clear();
   							msg = "restartHighlyAvailableServers";
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica1"));		                                                 
@@ -153,13 +173,15 @@ public class ReplicaManagerImpl extends Thread {
   							System.out.println("RM sent request to replica1 to restart");
   						}
   					}
-  					else if(message.equals("suspect replica2 crashed") && !isRecovering)
+  					/*else if(message.contains("suspect replica2 crashed") && !isRecovering && numProcessStarted==3)
   					{
   						crashNotification.get("replica2").add(request.getAddress().toString());
   						
   						if(crashNotification.get("replica2").size() == 2)
   						{
+  							crashNotification.get("replica1").clear();
   							crashNotification.get("replica2").clear();
+  							crashNotification.get("replica3").clear();
   							msg = "restartHighlyAvailableServers";
   							m = msg.getBytes();
   							aHost = InetAddress.getByName(networkInfo.getReplicaIp("replica2"));		                                                 
@@ -170,12 +192,14 @@ public class ReplicaManagerImpl extends Thread {
   							System.out.println("RM sent request to replica2 to restart");
   						}
   					}
-  					if(message.equals("suspect replica3 crashed") && !isRecovering)
+  					else if(message.contains("suspect replica3 crashed") && !isRecovering && numProcessStarted==3)
   					{
   						crashNotification.get("replica3").add(request.getAddress().toString());
   						
   						if(crashNotification.get("replica3").size() == 2)
   						{
+  							crashNotification.get("replica1").clear();
+  							crashNotification.get("replica2").clear();
   							crashNotification.get("replica3").clear();
   							msg = "restartHighlyAvailableServers";
   							m = msg.getBytes();
@@ -186,7 +210,7 @@ public class ReplicaManagerImpl extends Thread {
   							isRecovering = true;
   							System.out.println("RM sent request to replica3 to restart");
   						}
-  					}
+  					}*/
   				}
   				
   				

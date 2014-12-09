@@ -30,10 +30,12 @@ public class ReplicaServer extends Thread{
 	private boolean runReplica = false;
 	private int messageSequenceNumber;
 	private String logFileName;
-	private HeartbeatListener listener;
+	private HeartbeatListener listener1;
+	private HeartbeatListener listener2;
 	private HeartbeatClient client;
 	private boolean supportHighAvailability;
 	private int numOperationBeforeCrash;
+	private boolean isFirstOp;
 	
 	
 	public ReplicaServer(String replicaName)
@@ -48,8 +50,26 @@ public class ReplicaServer extends Thread{
 		deliveryQueue = new HashMap<Integer, String>();
 		holdbackQueue = new HashMap<Integer, String>();
 		logFileName = "replicaLog.txt";
-		listener = new HeartbeatListener(replicaName,replicaPort);
+		listener1 = new HeartbeatListener(replicaName,replicaInfo.getHeartbeatListener1ReplicaPort());
+		listener2 = new HeartbeatListener(replicaName,replicaInfo.getHeartbeatListener2ReplicaPort());
 		client = new HeartbeatClient(replicaName);
+		isFirstOp = true;
+		
+		if(this.replicaName.equals("replica1"))
+		{
+			listener1.setSenderReplica("replica2");
+			listener2.setSenderReplica("replica3");
+		}
+		if(this.replicaName.equals("replica2"))
+		{
+			listener1.setSenderReplica("replica1");
+			listener2.setSenderReplica("replica3");
+		}
+		if(this.replicaName.equals("replica3"))
+		{
+			listener1.setSenderReplica("replica1");
+			listener2.setSenderReplica("replica2");
+		}
 	}
 	
 	public String getReplicaName()
@@ -192,7 +212,8 @@ public class ReplicaServer extends Thread{
  			
  	    	if(supportHighAvailability)
  	    	{
- 	 			listener.stopListener();
+ 	 			listener1.stopListener();
+ 	 			listener2.stopListener();
  	 			client.stopClient();
  	    	}
 		}
@@ -224,8 +245,6 @@ public class ReplicaServer extends Thread{
 		else if(isStartHAOperation)
 		{
 			supportHighAvailability = true;
-        	listener.start();
-        	client.start();
 			return startServers(false);
 		}
 		else if(isRestartHAOperation)
@@ -246,6 +265,14 @@ public class ReplicaServer extends Thread{
 		boolean isSetDurationOperation = operation.contains("setDuration");
 		boolean isGetNonReturnersOperation = operation.contains("getNonReturners");
 		boolean isReserveBookOperation = operation.contains("reserveBook");
+		
+		if(isFirstOp)
+		{
+			isFirstOp = false;
+	    	listener1.start();
+	    	listener2.start();
+	    	client.start();
+		}
 		
 		//replica1 is going to be the one that crashes for the purpose of the demo
 		if(numOperationBeforeCrash == 0 && supportHighAvailability && replicaName.equals("replica1"))
@@ -318,10 +345,8 @@ public class ReplicaServer extends Thread{
 		deliveryQueue.clear();
 		updateServers();
 		numOperationBeforeCrash = 3;
-		listener = new HeartbeatListener(replicaName,replicaPort);
 		client = new HeartbeatClient(replicaName);
-    	listener.start();
-    	client.start();
+		client.start();
 		return "Replica " + replicaName + " restarted its servers";
 	}
 	

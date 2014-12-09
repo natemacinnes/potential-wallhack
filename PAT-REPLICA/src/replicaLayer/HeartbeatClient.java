@@ -5,12 +5,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.HashMap;
 
 public class HeartbeatClient extends Thread {
 
 	private boolean runClient;
 	private String owner;
 	private ReplicaInformation replicaInfo;
+	private HashMap<String,Integer> networkInfoList;
 	
 	
 	
@@ -19,6 +21,23 @@ public class HeartbeatClient extends Thread {
 		runClient = false;
 		owner = replicaName;
 		replicaInfo = new ReplicaInformation();
+		networkInfoList = new HashMap<String,Integer>();
+		
+		if(owner.equals("replica1"))
+		{
+			networkInfoList.put("replica2", 7783);
+			networkInfoList.put("replica3", 7783);
+		}
+		if(owner.equals("replica2"))
+		{
+			networkInfoList.put("replica1", 7783);
+			networkInfoList.put("replica3", 7784);
+		}
+		if(owner.equals("replica3"))
+		{
+			networkInfoList.put("replica1", 7784);
+			networkInfoList.put("replica2", 7784);
+		}
 	}
 	
 	public void stopClient()
@@ -35,23 +54,23 @@ public class HeartbeatClient extends Thread {
 		try{
 			// create socket
 	    	aSocket = new DatagramSocket();
-	    	
+	    	int deb = 0;
 		    //keep server alive
- 			while(runClient){
- 				aSocket = new DatagramSocket(); 
+ 			while(runClient){ 
+ 				sleep(5000);
  				String msg = owner +  " heartbeat";
  				byte [] m = msg.getBytes();
- 				int deb = 0;
  				
- 				for(String replicaName : replicaInfo.getReplicaName())
+ 				for(String replicaName : networkInfoList.keySet())
  				{
  					//don't send to owner
  					if(!replicaName.equals(owner))
  					{
  	 					InetAddress aHost = InetAddress.getByName(replicaInfo.getReplicaIp(replicaName));
  	 	 				DatagramPacket request =
- 	 	 	 				 	new DatagramPacket(m,  msg.length(), aHost, replicaInfo.getReplicaPort(replicaName));
+ 	 	 	 				 	new DatagramPacket(m,  msg.length(), aHost, networkInfoList.get(replicaName));
  	 	 				aSocket.send(request);
+ 	 	 				System.out.println("send heartbeat to " + replicaName);
  					}
  				}
     		}
@@ -60,7 +79,8 @@ public class HeartbeatClient extends Thread {
 			System.out.println("Formatting number: " + e.getMessage());
 		}
 		catch (SocketException e){System.out.println("Socket: " + e.getMessage());
-		}catch (IOException e) {System.out.println("IO: " + e.getMessage());
+		}catch (IOException e) {System.out.println("IO: " + e.getMessage());}
+		 catch (InterruptedException e) {System.out.println("IO: " + e.getMessage());
 		}finally {if(aSocket != null) aSocket.close();}
 	}
 
