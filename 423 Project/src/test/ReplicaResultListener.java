@@ -21,7 +21,7 @@ public class ReplicaResultListener extends Thread {
 	public String resultReplica1;
 	public int UDPPortReplicaListener = 2021;
 	public int RMPort = 7782;
-	public String RMAddress = "132.205.95.190";
+	public String RMAddress = "132.205.95.16";
 
 	public static int numOfReplicas = 3;// FIXME change back to three
 
@@ -31,9 +31,9 @@ public class ReplicaResultListener extends Thread {
 		this.fe = fe;
 
 		// FIXME add the
-		networkInfoList.put("/132.205.95.189", "replica2");
-		networkInfoList.put("/132.205.95.190", "replica1");
-		networkInfoList.put("/132.205.95.191", "replica3");
+		networkInfoList.put("/132.205.95.15", "replica2");
+		networkInfoList.put("/132.205.95.16", "replica1");
+		networkInfoList.put("/132.205.95.17", "replica3");
 
 	}
 

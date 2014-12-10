@@ -31,8 +31,7 @@ public class corbaClient {
 		corbaOperations frontEnd = corbaOperationsHelper.narrow(orbObject);
 
 		Scanner sc = new Scanner(System.in);
-		int choice = 0;
-		String input = null;
+		String choice = null;
 
 		while (true) {
 			System.out.println("\n\nWelcome. Your choices are: ");
@@ -44,76 +43,166 @@ public class corbaClient {
 					.println("Choice 3: setDuration for Concordia " +
 							"\nChoice 4: getNonReturners for Concordia and McGill");
 			System.out.println("Choice 5: Reserve Interlibrary at Concordia");
-			choice = sc.nextInt();
+			choice = sc.nextLine();
 			
 
-			if (choice == 1) {
-				String testReply = frontEnd.createAccount("Jignesh", "Patel",
-						"jigneshp23@gmail;com", "514-652-4729", "jig_pa",
-						"password1", "concordia");
+			if (choice.equals("1")) {
+
+				String firstname;
+				String lastname;
+				String email;
+				String phonenumber;
+				String username;
+				String password;
+				String institution;
+
+				System.out.println("Enter your first name: ");
+				firstname = sc.nextLine();
+
+				System.out.println("Enter your lastname: ");
+				lastname = sc.nextLine();
+
+				System.out.println("Enter your email: ");
+				email = sc.nextLine();
+
+				System.out.println("Enter your phonenumber: ");
+				phonenumber = sc.nextLine();
+
+				System.out.println("Enter your username: ");
+				username = sc.nextLine();
+
+				System.out.println("Enter your password: ");
+				password = sc.nextLine();
+
+				System.out.println("Enter your institution: ");
+				institution = sc.nextLine();
+
+				System.out.println("you inputted: " + firstname + " "
+						+ lastname + " " + email + " " + phonenumber + " "
+						+ username + " " + password + " " + institution);
+
+				String testReply = frontEnd.createAccount(firstname, lastname,
+						email, phonenumber, username,
+						password, institution);
 
 				System.out.println("Result: " + testReply);
 
-			} else if (choice == 2) {
-				String reply = frontEnd.reserveBook("jig_pa", "password1",
-						"game of thrones 1", "GRR Martin", "concordia");
+			} 
+			else if (choice.equals("2")) {
+
+				String bookname;
+				String author;
+				String password;
+				String username;
+				String institution;
+
+				System.out.println("Enter your username: ");
+				username = sc.nextLine();
+
+				System.out.println("Enter your password: ");
+				password = sc.nextLine();
+
+				System.out.println("Enter your book's name: ");
+				bookname = sc.nextLine();
+
+				System.out.println("Enter your book's author: ");
+				author = sc.nextLine();
+
+				System.out.println("Enter your institution: ");
+				institution = sc.nextLine();
+
+				System.out.println("You inputted: " + username + " " + password
+						+ " " + bookname + " " + author + " " + institution);
+				
+				String reply = frontEnd.reserveBook(username, password,
+						bookname, author, institution);
 				System.out.println("Result: " + reply);
 
-			} else if (choice == 3) {
-				
-				//String username = sc.next();
-				//String bookName = sc.next();
-				//String numdays //FIXME parse the string
-				
-				String reply = frontEnd.setDuration( "jig_pa", "game of thrones 1", 14, "concordia");
-				System.out.println("Result: " + reply);
-			} else if (choice ==4) {
+			} 
+			else if (choice.equals("4")) {
 
-				String reply = frontEnd.getNonReturners("Admin", "Admin", "concordia", 14);
+				String adminUser;
+				String adminPass;
+				String institution;
+				String numDays;
+
+				System.out.println("Enter your admin username: ");
+				adminUser = sc.nextLine();
+
+				System.out.println("Enter your admin password: ");
+				adminPass = sc.nextLine();
+
+				System.out.println("Enter your institution: ");
+				institution = sc.nextLine();
+
+				System.out.println("Enter the number of days: ");
+				numDays = sc.nextLine();// Convert to int for params
+
+				System.out.println("You inputted: " + " " + adminUser + " "
+						+ adminPass + " " + institution + " " + numDays);
+				
+				String reply = frontEnd.getNonReturners(adminUser, adminPass, institution, Integer.parseInt(numDays));
+				System.out.println("Result: " + reply);
+			}else if (choice.equals("5")) {
+
+				String username;
+				String password;
+				String institution;
+				String bookname;
+				String author;
+
+				System.out.println("Enter your username: ");
+				username = sc.nextLine();
+
+				System.out.println("Enter your password: ");
+				password = sc.nextLine();
+
+				System.out.println("Enter your bookname: ");
+				bookname = sc.nextLine();
+
+				System.out.println("Enter your author name: ");
+				author = sc.nextLine();
+
+				System.out.println("Enter your institution: ");
+				institution = sc.nextLine();
+
+				System.out.println("You inputted : " + username + " "
+						+ password + " " + bookname + " " + author + " "
+						+ institution);
+				
+				String reply = frontEnd.reserveInterLibrary(username, password, bookname, author, institution);
 				System.out.println("Result: " + reply);
 				
-			} else if (choice == 5) {
+			} else if (choice.equals("3")) {
+				String username;
+				String institution;
+				String bookname;
+				String numDays;
 
-				String reply = frontEnd.reserveInterLibrary("jig_pa",
-						"password1", "game of thrones 1", "GRR Martin",
-						"concordia");
+				System.out.println("Enter your username: ");
+				username = sc.nextLine();
+
+				System.out.println("Enter your bookname: ");
+				bookname = sc.nextLine();
+
+				System.out.println("Enter the num days: ");
+				numDays = sc.nextLine();
+
+				System.out.println("Enter your institution: ");
+				institution = sc.nextLine();
+				
+				String reply = frontEnd.setDuration( username, bookname
+						, Integer.parseInt(numDays) , institution);
 				System.out.println("Result: " + reply);
+
+				System.out.println("You inputted: " + username + " " + bookname
+						+ " " + numDays + " " + institution);
+				
+			} else if (choice.equals("6")) {
+				System.exit(0);
 			}
-			
-			
-			/*
-			 * 
-			 * CreateAccount
-String firstname;
-System.out.print("Enter your first name: ");
-firstname = user_input.next( );
+			sc.nextLine();
 
-String lastname;
-System.out.print("Enter your lastname: ");
-lastname = user_input.next( );
-
-String email;
-System.out.print("Enter your email: ");
-email = user_input.next( );
-
-String phonenumber;
-System.out.print("Enter your phonenumber: ");
-phonenumber = user_input.next( );
-
-String username;
-System.out.print("Enter your username: ");
-username = user_input.next( );
-
-String password;
-System.out.print("Enter your password: ");
-password = user_input.next( );
-
-String institution;
-System.out.print("Enter your institution: ");
-institution = user_input.next( );
-
-			 * */
-			
 			System.out.println();
 
 		}

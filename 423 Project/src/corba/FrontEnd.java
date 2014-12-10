@@ -32,7 +32,7 @@ public class FrontEnd extends corbaOperationsPOA {
 	public static String argDelim = ".";
 	public final String confirmMsg = "confirm";
 	public static String replicaResult;
-	public String sequencerAddress = "132.205.95.191"; 
+	public String sequencerAddress = "132.205.95.17"; 
 
 	@Override
 	public String createAccount(String firstName, String lastName,
